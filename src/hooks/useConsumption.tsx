@@ -43,9 +43,11 @@ export const useConsumption = () => {
     const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
     const monthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
 
+    // Filtrer les données par période
     const weekData = consumptions.filter(c => new Date(c.date) >= weekAgo);
     const monthData = consumptions.filter(c => new Date(c.date) >= monthAgo);
 
+    // Compter par type pour chaque période
     const weekTotal = weekData.reduce((acc, c) => {
       acc[c.type] = (acc[c.type] || 0) + 1;
       return acc;
@@ -56,6 +58,7 @@ export const useConsumption = () => {
       return acc;
     }, {} as { [key: string]: number });
 
+    // Calculer les moyennes quotidiennes sur 30 jours
     const dailyAverage = Object.keys(monthTotal).reduce((acc, type) => {
       acc[type] = Math.round((monthTotal[type] / 30) * 10) / 10;
       return acc;
@@ -68,13 +71,20 @@ export const useConsumption = () => {
       const dateStr = date.toISOString().split('T')[0];
       const dayData = consumptions.filter(c => c.date.startsWith(dateStr));
       
+      // Noms des jours en français
+      const dayNames = ['Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam'];
+      const dayName = dayNames[date.getDay()];
+      const dayMonth = date.getDate();
+      
       recentData.push({
-        date: date.toLocaleDateString('fr-FR', { weekday: 'short' }),
+        date: `${dayName} ${dayMonth}`,
         herbe: dayData.filter(c => c.type === 'herbe').length,
         hash: dayData.filter(c => c.type === 'hash').length,
         cigarette: dayData.filter(c => c.type === 'cigarette').length,
       });
     }
+
+    console.log('Stats calculées:', { weekTotal, monthTotal, dailyAverage, recentData });
 
     return { weekTotal, monthTotal, dailyAverage, recentData };
   };
