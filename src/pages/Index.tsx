@@ -1,9 +1,9 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Plus, BarChart3, History, Cannabis, Cigarette, Sparkles, Zap, Shield } from 'lucide-react';
-import { useConsumption } from '@/hooks/useConsumption';
+import { Plus, BarChart3, History, Cannabis, Cigarette, Sparkles, Zap, Shield, LogOut } from 'lucide-react';
+import { useSupabaseConsumption } from '@/hooks/useSupabaseConsumption';
+import { useAuth } from '@/hooks/useAuth';
 import AddConsumptionForm from '@/components/AddConsumptionForm';
 import ConsumptionHistory from '@/components/ConsumptionHistory';
 import Stats from '@/components/Stats';
@@ -12,7 +12,8 @@ import { useToast } from '@/hooks/use-toast';
 const Index = () => {
   const [showForm, setShowForm] = useState(false);
   const [activeTab, setActiveTab] = useState('home');
-  const { consumptions, addConsumption, deleteConsumption, getStats } = useConsumption();
+  const { consumptions, addConsumption, deleteConsumption, getStats, loading } = useSupabaseConsumption();
+  const { signOut, user } = useAuth();
   const { toast } = useToast();
 
   const handleAddConsumption = (consumption: Parameters<typeof addConsumption>[0]) => {
@@ -55,6 +56,25 @@ const Index = () => {
     });
   };
 
+  const handleSignOut = async () => {
+    await signOut();
+    toast({
+      title: "👋 Déconnexion",
+      description: "À bientôt sur Agent Quit Pro !",
+    });
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen cyber-grid flex items-center justify-center">
+        <div className="glass-card p-8 rounded-2xl text-center">
+          <div className="pulse-ring mb-4"></div>
+          <p className="text-primary">Chargement de vos données...</p>
+        </div>
+      </div>
+    );
+  }
+
   const stats = getStats();
 
   const quickAddButtons = [
@@ -95,8 +115,20 @@ const Index = () => {
           <div className="absolute bottom-20 right-1/3 w-1 h-1 bg-blue-300 rounded-full opacity-30 floating" style={{ animationDelay: '3s' }}></div>
         </div>
 
-        {/* Header */}
+        {/* Header with logout */}
         <div className="text-center py-12 relative">
+          <div className="absolute top-0 right-0">
+            <Button
+              onClick={handleSignOut}
+              variant="ghost"
+              size="sm"
+              className="glass-button neon-glow"
+            >
+              <LogOut className="w-4 h-4 mr-2" />
+              Déconnexion
+            </Button>
+          </div>
+          
           <div className="inline-block relative">
             <div className="pulse-ring"></div>
             <Shield className="w-16 h-16 mx-auto mb-4 text-primary relative z-10" />
@@ -109,7 +141,7 @@ const Index = () => {
           </p>
           <p className="text-sm text-primary/80 flex items-center justify-center gap-2">
             <Sparkles className="w-4 h-4" />
-            Votre assistant futuriste pour un mode de vie sain
+            Bienvenue {user?.email?.split('@')[0]} - Vos données sont sécurisées
             <Sparkles className="w-4 h-4" />
           </p>
         </div>
