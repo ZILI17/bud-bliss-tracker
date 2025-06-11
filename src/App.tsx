@@ -7,6 +7,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
 import AuthGuard from "@/components/AuthGuard";
 import Index from "./pages/Index";
+import Settings from "./components/Settings";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -22,6 +23,11 @@ const App = () => (
             <Route path="/" element={
               <AuthGuard>
                 <Index />
+              </AuthGuard>
+            } />
+            <Route path="/settings" element={
+              <AuthGuard>
+                <Settings />
               </AuthGuard>
             } />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

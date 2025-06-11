@@ -44,31 +44,119 @@ export type Database = {
       }
       profiles: {
         Row: {
+          activity_level: string | null
+          age: number | null
+          consumption_goal: string | null
           created_at: string
+          default_cigarette_quantity: number | null
+          default_hash_quantity: number | null
+          default_herbe_quantity: number | null
+          height_cm: number | null
           id: string
+          medical_conditions: string[] | null
+          medications: string[] | null
+          onboarding_completed: boolean | null
+          profile_completed: boolean | null
           updated_at: string
           username: string | null
+          weight_kg: number | null
         }
         Insert: {
+          activity_level?: string | null
+          age?: number | null
+          consumption_goal?: string | null
           created_at?: string
+          default_cigarette_quantity?: number | null
+          default_hash_quantity?: number | null
+          default_herbe_quantity?: number | null
+          height_cm?: number | null
           id: string
+          medical_conditions?: string[] | null
+          medications?: string[] | null
+          onboarding_completed?: boolean | null
+          profile_completed?: boolean | null
           updated_at?: string
           username?: string | null
+          weight_kg?: number | null
         }
         Update: {
+          activity_level?: string | null
+          age?: number | null
+          consumption_goal?: string | null
           created_at?: string
+          default_cigarette_quantity?: number | null
+          default_hash_quantity?: number | null
+          default_herbe_quantity?: number | null
+          height_cm?: number | null
           id?: string
+          medical_conditions?: string[] | null
+          medications?: string[] | null
+          onboarding_completed?: boolean | null
+          profile_completed?: boolean | null
           updated_at?: string
           username?: string | null
+          weight_kg?: number | null
         }
         Relationships: []
+      }
+      recommendations: {
+        Row: {
+          content: string
+          created_at: string
+          expires_at: string | null
+          id: string
+          is_read: boolean | null
+          priority: number | null
+          title: string
+          type: string
+          user_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          is_read?: boolean | null
+          priority?: number | null
+          title: string
+          type: string
+          user_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          is_read?: boolean | null
+          priority?: number | null
+          title?: string
+          type?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "recommendations_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      calculate_personalized_recommendations: {
+        Args: { user_uuid: string }
+        Returns: {
+          rec_type: string
+          rec_title: string
+          rec_content: string
+          rec_priority: number
+        }[]
+      }
     }
     Enums: {
       [_ in never]: never

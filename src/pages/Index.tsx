@@ -1,12 +1,16 @@
+
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Plus, BarChart3, History, Cannabis, Cigarette, Sparkles, Zap, Shield, LogOut } from 'lucide-react';
+import { Plus, BarChart3, History, Cannabis, Cigarette, Sparkles, Zap, Shield, LogOut, Settings as SettingsIcon } from 'lucide-react';
 import { useSupabaseConsumption } from '@/hooks/useSupabaseConsumption';
 import { useAuth } from '@/hooks/useAuth';
+import { useProfile } from '@/hooks/useProfile';
+import { useNavigate } from 'react-router-dom';
 import AddConsumptionForm from '@/components/AddConsumptionForm';
 import ConsumptionHistory from '@/components/ConsumptionHistory';
 import Stats from '@/components/Stats';
+import PersonalizedRecommendations from '@/components/PersonalizedRecommendations';
 import { useToast } from '@/hooks/use-toast';
 
 const Index = () => {
@@ -14,7 +18,9 @@ const Index = () => {
   const [activeTab, setActiveTab] = useState('home');
   const { consumptions, addConsumption, deleteConsumption, getStats, loading } = useSupabaseConsumption();
   const { signOut, user } = useAuth();
+  const { profile, getDefaultQuantity } = useProfile();
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   const handleAddConsumption = (consumption: Parameters<typeof addConsumption>[0]) => {
     addConsumption(consumption);
@@ -26,9 +32,11 @@ const Index = () => {
     });
   };
 
-  const handleQuickAdd = (type: 'herbe' | 'hash' | 'cigarette', quantity: string) => {
+  const handleQuickAdd = (type: 'herbe' | 'hash' | 'cigarette') => {
     const now = new Date();
     const date = new Date(now.getTime() - now.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+    
+    const quantity = getDefaultQuantity(type);
     
     addConsumption({
       type,
@@ -81,7 +89,7 @@ const Index = () => {
     { 
       type: 'herbe' as const, 
       label: 'Cannabis', 
-      quantity: '1 joint', 
+      quantity: getDefaultQuantity('herbe'), 
       icon: Cannabis, 
       gradient: 'from-emerald-500 via-green-500 to-emerald-600',
       shadow: 'shadow-emerald-500/25'
@@ -89,7 +97,7 @@ const Index = () => {
     { 
       type: 'hash' as const, 
       label: 'Hash', 
-      quantity: '1 dose', 
+      quantity: getDefaultQuantity('hash'), 
       icon: Cannabis, 
       gradient: 'from-amber-500 via-orange-500 to-amber-600',
       shadow: 'shadow-amber-500/25'
@@ -97,7 +105,7 @@ const Index = () => {
     { 
       type: 'cigarette' as const, 
       label: 'Cigarette', 
-      quantity: '1 cig', 
+      quantity: getDefaultQuantity('cigarette'), 
       icon: Cigarette, 
       gradient: 'from-slate-500 via-gray-500 to-slate-600',
       shadow: 'shadow-slate-500/25'
@@ -115,9 +123,18 @@ const Index = () => {
           <div className="absolute bottom-20 right-1/3 w-1 h-1 bg-blue-300 rounded-full opacity-30 floating" style={{ animationDelay: '3s' }}></div>
         </div>
 
-        {/* Header with logout */}
+        {/* Header with logout and settings */}
         <div className="text-center py-12 relative">
-          <div className="absolute top-0 right-0">
+          <div className="absolute top-0 right-0 flex gap-2">
+            <Button
+              onClick={() => navigate('/settings')}
+              variant="ghost"
+              size="sm"
+              className="glass-button neon-glow"
+            >
+              <SettingsIcon className="w-4 h-4 mr-2" />
+              Paramètres
+            </Button>
             <Button
               onClick={handleSignOut}
               variant="ghost"
@@ -173,6 +190,9 @@ const Index = () => {
           </TabsList>
 
           <TabsContent value="home" className="space-y-8">
+            {/* Recommandations personnalisées */}
+            <PersonalizedRecommendations />
+
             {!showForm ? (
               <div className="text-center space-y-8">
                 {/* Quick add buttons */}
@@ -188,7 +208,7 @@ const Index = () => {
                       return (
                         <div key={button.type} className="relative group">
                           <Button
-                            onClick={() => handleQuickAdd(button.type, button.quantity)}
+                            onClick={() => handleQuickAdd(button.type)}
                             size="lg"
                             className={`h-32 w-full flex flex-col gap-3 bg-gradient-to-br ${button.gradient} text-white shadow-2xl ${button.shadow} hover:shadow-xl transition-all duration-300 hover:scale-105 border-0 neon-glow relative overflow-hidden`}
                           >
@@ -204,7 +224,7 @@ const Index = () => {
                     })}
                   </div>
                   <p className="text-sm text-muted-foreground mt-6 opacity-75">
-                    ⚡ Clic instantané pour enregistrer avec les quantités par défaut
+                    ⚡ Quantités personnalisées - Modifiables dans les paramètres
                   </p>
                 </div>
 
