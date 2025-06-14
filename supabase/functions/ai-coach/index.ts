@@ -49,13 +49,25 @@ serve(async (req) => {
       )
     }
 
-    // Calculer les données par type de substance
-    const cannabis_aujourdhui = (data.consommations_du_jour?.filter((c: any) => c.type === 'herbe')?.length || 0) + 
-                                (data.consommations_du_jour?.filter((c: any) => c.type === 'hash')?.length || 0);
-    const cigarettes_aujourdhui = data.consommations_du_jour?.filter((c: any) => c.type === 'cigarette')?.length || 0;
+    // Calculer correctement les données par type de substance
+    const today = new Date().toISOString().split('T')[0];
+    const consommationsAujourdhui = data.consommations_du_jour || [];
     
+    // Compter les vraies consommations d'aujourd'hui
+    const cannabis_aujourdhui = consommationsAujourdhui.filter((c: any) => 
+      c.type === 'herbe' || c.type === 'hash'
+    ).length;
+    const cigarettes_aujourdhui = consommationsAujourdhui.filter((c: any) => 
+      c.type === 'cigarette'
+    ).length;
+    
+    // Utiliser les vraies données de la semaine
     const cannabis_semaine = (data.consommation_semaine_herbe || 0) + (data.consommation_semaine_hash || 0);
     const cigarettes_semaine = data.consommation_semaine_cigarette || 0;
+
+    // Calculer les vraies moyennes journalières sur 7 jours
+    const cannabis_moyenne_jour = Math.round((cannabis_semaine / 7) * 10) / 10;
+    const cigarettes_moyenne_jour = Math.round((cigarettes_semaine / 7) * 10) / 10;
 
     // Construire un prompt système enrichi et personnalisé
     const systemPrompt = `Tu es un coach personnel bienveillant, spécialisé dans la réduction ou la maîtrise de la consommation de cannabis, tabac ou nicotine.
@@ -68,14 +80,15 @@ PROFIL UTILISATEUR :
 - Timeline souhaitée: ${data.goal_timeline || data.timeline || 'non précisé'}
 - Motivation personnelle: "${data.goal_motivation || data.motivation || 'non précisée'}"
 
-CONSOMMATION CANNABIS (herbe + hash) :
-- Aujourd'hui: ${cannabis_aujourdhui} fois
-- Cette semaine: ${cannabis_semaine} fois
-- Progression générale: ${data.progression || 'début du suivi'}
+CONSOMMATION RÉELLE CANNABIS (herbe + hash) :
+- Aujourd'hui: ${cannabis_aujourdhui} fois (VRAIES DONNÉES)
+- Cette semaine: ${cannabis_semaine} fois (VRAIES DONNÉES)
+- Moyenne par jour: ${cannabis_moyenne_jour} fois/jour
 
-CONSOMMATION CIGARETTES :
-- Aujourd'hui: ${cigarettes_aujourdhui} fois  
-- Cette semaine: ${cigarettes_semaine} fois
+CONSOMMATION RÉELLE CIGARETTES :
+- Aujourd'hui: ${cigarettes_aujourdhui} fois (VRAIES DONNÉES)
+- Cette semaine: ${cigarettes_semaine} fois (VRAIES DONNÉES)
+- Moyenne par jour: ${cigarettes_moyenne_jour} fois/jour
 
 CONTEXTE PERSONNEL :
 - Déclencheurs moments: ${Array.isArray(data.triggers_moments) ? data.triggers_moments.join(', ') : 'non identifiés'}
@@ -87,19 +100,20 @@ CONTEXTE PERSONNEL :
 
 CONSIGNES STRICTES :
 1. Structure OBLIGATOIREMENT ta réponse avec ces 4 sections clairement séparées :
-   **🔍 ANALYSE** - Contexte personnalisé selon les données
+   **🔍 ANALYSE** - Contexte personnalisé selon les VRAIES données actuelles
    **💡 CONSEIL** - Une idée concrète à appliquer aujourd'hui  
    **🔥 MOTIVATION** - Encouragement personnalisé selon son objectif
    **🎯 ALTERNATIVE** - Une activité pour remplacer l'envie de consommer
 
-2. Différencie TOUJOURS cannabis et cigarettes dans tes conseils
-3. Sois bienveillant, motivant et informel (tutoiement)
-4. Ne propose JAMAIS de consulter un médecin ou demander de l'aide extérieure
-5. L'outil doit être autonome et autosuffisant
-6. Maximum 180 mots au total
-7. Utilise les données personnelles pour personnaliser vraiment le conseil
+2. Utilise UNIQUEMENT les vraies données fournies (pas de moyennes fantaisistes)
+3. Différencie TOUJOURS cannabis et cigarettes dans tes conseils
+4. Sois bienveillant, motivant et informel (tutoiement)
+5. Ne propose JAMAIS de consulter un médecin ou demander de l'aide extérieure
+6. L'outil doit être autonome et autosuffisant
+7. Maximum 180 mots au total
+8. Base-toi sur les VRAIES consommations pour donner des conseils pertinents
 
-Réponds maintenant selon cette structure obligatoire.`
+Réponds maintenant selon cette structure obligatoire en utilisant les VRAIES données.`
 
     console.log('Calling Google AI with enhanced prompt')
 

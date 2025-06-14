@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -63,24 +62,19 @@ const DailyAIRecommendation = () => {
     
     setLoading(true);
     try {
-      // Préparer les données détaillées pour l'IA
+      // Préparer les données détaillées pour l'IA avec les vraies statistiques
       const today = new Date().toISOString().split('T')[0];
       const todayConsumptions = consumptions.filter(c => c.date.startsWith(today));
       
-      // Séparer par type de substance
-      const consommations_du_jour = todayConsumptions;
-      const consommation_semaine_herbe = Object.values(stats.weekTotal).reduce((acc, val, idx) => {
-        const types = Object.keys(stats.weekTotal);
-        return types[idx] === 'herbe' ? acc + val : acc;
-      }, 0);
-      const consommation_semaine_hash = Object.values(stats.weekTotal).reduce((acc, val, idx) => {
-        const types = Object.keys(stats.weekTotal);
-        return types[idx] === 'hash' ? acc + val : acc;
-      }, 0);
-      const consommation_semaine_cigarette = Object.values(stats.weekTotal).reduce((acc, val, idx) => {
-        const types = Object.keys(stats.weekTotal);
-        return types[idx] === 'cigarette' ? acc + val : acc;
-      }, 0);
+      // Calculer correctement les stats de la semaine (7 derniers jours)
+      const weekAgo = new Date();
+      weekAgo.setDate(weekAgo.getDate() - 7);
+      const weekConsumptions = consumptions.filter(c => new Date(c.date) >= weekAgo);
+      
+      // Compter par type pour la semaine
+      const consommation_semaine_herbe = weekConsumptions.filter(c => c.type === 'herbe').length;
+      const consommation_semaine_hash = weekConsumptions.filter(c => c.type === 'hash').length;
+      const consommation_semaine_cigarette = weekConsumptions.filter(c => c.type === 'cigarette').length;
 
       const aiData = {
         age: profile?.age,
@@ -88,7 +82,7 @@ const DailyAIRecommendation = () => {
         timeline: profile?.goal_timeline,
         motivation: profile?.goal_motivation,
         objectif_description: profile?.goal_description,
-        consommations_du_jour: consommations_du_jour,
+        consommations_du_jour: todayConsumptions,
         consommation_semaine_herbe,
         consommation_semaine_hash,
         consommation_semaine_cigarette,
@@ -102,7 +96,13 @@ const DailyAIRecommendation = () => {
         daily_notes: 'aucune' // Could be enhanced with user input
       };
 
-      console.log('Sending enhanced data to AI:', aiData);
+      console.log('Sending correct data to AI:', {
+        total_consumptions: consumptions.length,
+        today_consumptions: todayConsumptions.length,
+        week_herbe: consommation_semaine_herbe,
+        week_hash: consommation_semaine_hash,
+        week_cigarette: consommation_semaine_cigarette
+      });
 
       const { data, error } = await supabase.functions.invoke('ai-coach', {
         body: aiData
