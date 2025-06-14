@@ -11,6 +11,17 @@ interface UserProfile {
   height_cm?: number;
   activity_level?: string;
   consumption_goal?: string;
+  goal_timeline?: string;
+  goal_motivation?: string;
+  goal_description?: string;
+  triggers_moments?: string[];
+  triggers_specific?: string[];
+  motivation_reasons?: string[];
+  motivation_personal?: string;
+  support_entourage?: boolean;
+  support_preference?: string;
+  alternative_activities?: string[];
+  wants_daily_suggestions?: boolean;
   medical_conditions?: string[];
   medications?: string[];
   default_herbe_quantity?: number;

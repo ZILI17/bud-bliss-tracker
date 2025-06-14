@@ -49,6 +49,7 @@ export type Database = {
         Row: {
           activity_level: string | null
           age: number | null
+          alternative_activities: string[] | null
           consumption_goal: string | null
           created_at: string
           default_cigarette_price: number | null
@@ -57,19 +58,30 @@ export type Database = {
           default_hash_quantity: number | null
           default_herbe_price: number | null
           default_herbe_quantity: number | null
+          goal_description: string | null
+          goal_motivation: string | null
+          goal_timeline: string | null
           height_cm: number | null
           id: string
           medical_conditions: string[] | null
           medications: string[] | null
+          motivation_personal: string | null
+          motivation_reasons: string[] | null
           onboarding_completed: boolean | null
           profile_completed: boolean | null
+          support_entourage: boolean | null
+          support_preference: string | null
+          triggers_moments: string[] | null
+          triggers_specific: string[] | null
           updated_at: string
           username: string | null
+          wants_daily_suggestions: boolean | null
           weight_kg: number | null
         }
         Insert: {
           activity_level?: string | null
           age?: number | null
+          alternative_activities?: string[] | null
           consumption_goal?: string | null
           created_at?: string
           default_cigarette_price?: number | null
@@ -78,19 +90,30 @@ export type Database = {
           default_hash_quantity?: number | null
           default_herbe_price?: number | null
           default_herbe_quantity?: number | null
+          goal_description?: string | null
+          goal_motivation?: string | null
+          goal_timeline?: string | null
           height_cm?: number | null
           id: string
           medical_conditions?: string[] | null
           medications?: string[] | null
+          motivation_personal?: string | null
+          motivation_reasons?: string[] | null
           onboarding_completed?: boolean | null
           profile_completed?: boolean | null
+          support_entourage?: boolean | null
+          support_preference?: string | null
+          triggers_moments?: string[] | null
+          triggers_specific?: string[] | null
           updated_at?: string
           username?: string | null
+          wants_daily_suggestions?: boolean | null
           weight_kg?: number | null
         }
         Update: {
           activity_level?: string | null
           age?: number | null
+          alternative_activities?: string[] | null
           consumption_goal?: string | null
           created_at?: string
           default_cigarette_price?: number | null
@@ -99,14 +122,24 @@ export type Database = {
           default_hash_quantity?: number | null
           default_herbe_price?: number | null
           default_herbe_quantity?: number | null
+          goal_description?: string | null
+          goal_motivation?: string | null
+          goal_timeline?: string | null
           height_cm?: number | null
           id?: string
           medical_conditions?: string[] | null
           medications?: string[] | null
+          motivation_personal?: string | null
+          motivation_reasons?: string[] | null
           onboarding_completed?: boolean | null
           profile_completed?: boolean | null
+          support_entourage?: boolean | null
+          support_preference?: string | null
+          triggers_moments?: string[] | null
+          triggers_specific?: string[] | null
           updated_at?: string
           username?: string | null
+          wants_daily_suggestions?: boolean | null
           weight_kg?: number | null
         }
         Relationships: []
