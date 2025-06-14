@@ -10,6 +10,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { User, Target, Activity, Beaker, ChevronRight, Sparkles } from 'lucide-react';
+import DetailedGoalsSection from '@/components/profile/DetailedGoalsSection';
 
 const Onboarding = () => {
   const [step, setStep] = useState(1);
@@ -24,6 +25,9 @@ const Onboarding = () => {
     height_cm: '',
     activity_level: '',
     consumption_goal: '',
+    goal_timeline: '',
+    goal_motivation: '',
+    goal_description: '',
     medical_conditions: [] as string[],
     medications: [] as string[],
     default_herbe_quantity: '0.5',
@@ -64,6 +68,9 @@ const Onboarding = () => {
           height_cm: profileData.height_cm ? parseInt(profileData.height_cm) : null,
           activity_level: profileData.activity_level || null,
           consumption_goal: profileData.consumption_goal || null,
+          goal_timeline: profileData.goal_timeline || null,
+          goal_motivation: profileData.goal_motivation || null,
+          goal_description: profileData.goal_description || null,
           medical_conditions: profileData.medical_conditions.length > 0 ? profileData.medical_conditions : null,
           medications: profileData.medications.length > 0 ? profileData.medications : null,
           default_herbe_quantity: parseFloat(profileData.default_herbe_quantity),
@@ -78,7 +85,7 @@ const Onboarding = () => {
 
       toast({
         title: "🎉 Profil créé avec succès !",
-        description: "Bienvenue dans Agent Quit Pro ! Vos recommandations sont maintenant personnalisées.",
+        description: "Bienvenue dans Agent Quit Pro ! Tes recommandations IA sont maintenant personnalisées.",
       });
 
       window.location.reload();
@@ -109,11 +116,11 @@ const Onboarding = () => {
             Configuration Initiale
           </h1>
           <p className="text-muted-foreground">
-            Personnalisez Agent Quit Pro selon vos besoins
+            Personnalise Agent Quit Pro selon tes besoins
           </p>
           <div className="flex justify-center mt-4">
             <div className="flex gap-2">
-              {[1, 2, 3, 4].map((num) => (
+              {[1, 2, 3, 4, 5].map((num) => (
                 <div
                   key={num}
                   className={`w-3 h-3 rounded-full transition-colors ${
@@ -132,10 +139,12 @@ const Onboarding = () => {
               {step === 2 && <Activity className="w-5 h-5" />}
               {step === 3 && <Target className="w-5 h-5" />}
               {step === 4 && <Beaker className="w-5 h-5" />}
+              {step === 5 && <Sparkles className="w-5 h-5" />}
               {step === 1 && "Informations Personnelles"}
               {step === 2 && "Santé & Activité"}
-              {step === 3 && "Objectifs"}
+              {step === 3 && "Ton Objectif Personnel"}
               {step === 4 && "Quantités Personnalisées"}
+              {step === 5 && "Récapitulatif"}
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
@@ -220,26 +229,7 @@ const Onboarding = () => {
             )}
 
             {step === 3 && (
-              <div className="space-y-4">
-                <div>
-                  <Label>Objectif principal</Label>
-                  <Select onValueChange={(value) => setProfileData(prev => ({ ...prev, consumption_goal: value }))}>
-                    <SelectTrigger className="glass-button">
-                      <SelectValue placeholder="Quel est votre objectif ?" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="reduction">Réduction progressive</SelectItem>
-                      <SelectItem value="arret">Arrêt complet</SelectItem>
-                      <SelectItem value="medical">Usage médical contrôlé</SelectItem>
-                      <SelectItem value="recreatif">Usage récréatif responsable</SelectItem>
-                      <SelectItem value="maintenance">Maintien du niveau actuel</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <p className="text-sm text-muted-foreground">
-                  🎯 Cet objectif nous aide à personnaliser vos recommandations et votre suivi
-                </p>
-              </div>
+              <DetailedGoalsSection formData={profileData} setFormData={setProfileData} />
             )}
 
             {step === 4 && (
@@ -287,6 +277,27 @@ const Onboarding = () => {
               </div>
             )}
 
+            {step === 5 && (
+              <div className="space-y-4">
+                <div className="bg-gradient-to-br from-purple-500/10 to-blue-500/10 border border-purple-500/30 rounded-lg p-6">
+                  <h3 className="text-xl font-bold mb-4 text-center">🎯 Récapitulatif de ton profil</h3>
+                  <div className="space-y-2 text-sm">
+                    <p><strong>Objectif :</strong> {profileData.consumption_goal || 'Non défini'}</p>
+                    <p><strong>Délai :</strong> {profileData.goal_timeline || 'Non défini'}</p>
+                    <p><strong>Motivation :</strong> {profileData.goal_motivation || 'Non définie'}</p>
+                    {profileData.goal_description && (
+                      <p><strong>Description :</strong> {profileData.goal_description}</p>
+                    )}
+                  </div>
+                </div>
+                <div className="text-center">
+                  <p className="text-sm text-muted-foreground mb-4">
+                    🤖 Ton IA coach va maintenant pouvoir te donner des conseils personnalisés chaque jour !
+                  </p>
+                </div>
+              </div>
+            )}
+
             <div className="flex justify-between pt-6">
               <Button
                 onClick={prevStep}
@@ -296,7 +307,7 @@ const Onboarding = () => {
               >
                 Précédent
               </Button>
-              {step < 4 ? (
+              {step < 5 ? (
                 <Button onClick={nextStep} className="glass-button neon-glow">
                   Suivant
                   <ChevronRight className="w-4 h-4 ml-2" />
@@ -307,7 +318,7 @@ const Onboarding = () => {
                   disabled={loading}
                   className="glass-button neon-glow"
                 >
-                  {loading ? "Finalisation..." : "Terminer la configuration"}
+                  {loading ? "Finalisation..." : "🚀 Commencer l'aventure !"}
                 </Button>
               )}
             </div>

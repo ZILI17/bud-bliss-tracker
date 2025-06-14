@@ -10,7 +10,7 @@ import { useNavigate } from 'react-router-dom';
 import AddConsumptionForm from '@/components/AddConsumptionForm';
 import ConsumptionHistory from '@/components/ConsumptionHistory';
 import Stats from '@/components/Stats';
-import PersonalizedRecommendations from '@/components/PersonalizedRecommendations';
+import DailyAIRecommendation from '@/components/DailyAIRecommendation';
 import AICoach from '@/components/AICoach';
 import { useToast } from '@/hooks/use-toast';
 
@@ -198,8 +198,8 @@ const Index = () => {
           </TabsList>
 
           <TabsContent value="home" className="space-y-8">
-            {/* Recommandations personnalisées */}
-            <PersonalizedRecommendations />
+            {/* Recommandation IA du jour */}
+            <DailyAIRecommendation />
 
             {!showForm ? (
               <div className="text-center space-y-8">
