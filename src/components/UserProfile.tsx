@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -11,25 +11,48 @@ import { useToast } from '@/hooks/use-toast';
 import { User, Activity, Target, Beaker } from 'lucide-react';
 
 const UserProfile = () => {
-  const { profile, updateProfile } = useProfile();
+  const { profile, updateProfile, loading } = useProfile();
   const { toast } = useToast();
   
   const [formData, setFormData] = useState({
-    username: profile?.username || '',
-    age: profile?.age || '',
-    weight_kg: profile?.weight_kg || '',
-    height_cm: profile?.height_cm || '',
-    activity_level: profile?.activity_level || '',
-    consumption_goal: profile?.consumption_goal || '',
-    medical_conditions: profile?.medical_conditions || [],
-    medications: profile?.medications || [],
-    default_herbe_quantity: profile?.default_herbe_quantity || 0.5,
-    default_hash_quantity: profile?.default_hash_quantity || 0.3,
-    default_cigarette_quantity: profile?.default_cigarette_quantity || 1,
-    default_herbe_price: profile?.default_herbe_price || 10,
-    default_hash_price: profile?.default_hash_price || 15,
-    default_cigarette_price: profile?.default_cigarette_price || 0.5,
+    username: '',
+    age: '',
+    weight_kg: '',
+    height_cm: '',
+    activity_level: '',
+    consumption_goal: '',
+    medical_conditions: [] as string[],
+    medications: [] as string[],
+    default_herbe_quantity: 0.5,
+    default_hash_quantity: 0.3,
+    default_cigarette_quantity: 1,
+    default_herbe_price: 10,
+    default_hash_price: 15,
+    default_cigarette_price: 0.5,
   });
+
+  // Synchroniser les données du profil avec le formulaire
+  useEffect(() => {
+    console.log('Profile data changed:', profile);
+    if (profile) {
+      setFormData({
+        username: profile.username || '',
+        age: profile.age?.toString() || '',
+        weight_kg: profile.weight_kg?.toString() || '',
+        height_cm: profile.height_cm?.toString() || '',
+        activity_level: profile.activity_level || '',
+        consumption_goal: profile.consumption_goal || '',
+        medical_conditions: profile.medical_conditions || [],
+        medications: profile.medications || [],
+        default_herbe_quantity: profile.default_herbe_quantity || 0.5,
+        default_hash_quantity: profile.default_hash_quantity || 0.3,
+        default_cigarette_quantity: profile.default_cigarette_quantity || 1,
+        default_herbe_price: profile.default_herbe_price || 10,
+        default_hash_price: profile.default_hash_price || 15,
+        default_cigarette_price: profile.default_cigarette_price || 0.5,
+      });
+    }
+  }, [profile]);
 
   const medicalConditions = [
     'Anxiété', 'Dépression', 'Insomnie', 'Douleurs chroniques', 
@@ -51,6 +74,7 @@ const UserProfile = () => {
   };
 
   const handleSave = async () => {
+    console.log('Saving profile with form data:', formData);
     try {
       await updateProfile({
         username: formData.username || undefined,
@@ -67,13 +91,15 @@ const UserProfile = () => {
         default_herbe_price: parseFloat(formData.default_herbe_price.toString()),
         default_hash_price: parseFloat(formData.default_hash_price.toString()),
         default_cigarette_price: parseFloat(formData.default_cigarette_price.toString()),
+        profile_completed: true,
       });
       
       toast({
-        title: "👤 Profil mis à jour",
+        title: "✅ Profil mis à jour",
         description: "Vos informations ont été sauvegardées avec succès.",
       });
     } catch (error) {
+      console.error('Save error:', error);
       toast({
         title: "❌ Erreur",
         description: "Impossible de sauvegarder le profil.",
@@ -82,8 +108,24 @@ const UserProfile = () => {
     }
   };
 
+  if (loading) {
+    return (
+      <div className="text-center p-8">
+        <div className="animate-spin rounded-full h-8 w-8 border-2 border-primary border-t-transparent mx-auto mb-4"></div>
+        <p>Chargement de votre profil...</p>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
+      {/* Debug info */}
+      <div className="text-xs text-muted-foreground p-2 bg-gray-100 rounded">
+        Profile loaded: {profile ? 'Oui' : 'Non'} | 
+        Age: {profile?.age || 'Non défini'} | 
+        Poids: {profile?.weight_kg || 'Non défini'}
+      </div>
+
       {/* Informations Personnelles */}
       <Card className="glass-card">
         <CardHeader>

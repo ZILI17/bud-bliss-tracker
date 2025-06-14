@@ -30,15 +30,23 @@ export const useProfile = () => {
 
   useEffect(() => {
     if (user) {
+      console.log('User authenticated, fetching profile for:', user.id);
       fetchProfile();
     } else {
+      console.log('No user authenticated');
       setProfile(null);
       setLoading(false);
     }
   }, [user]);
 
   const fetchProfile = async () => {
-    if (!user) return;
+    if (!user) {
+      console.log('No user available for profile fetch');
+      return;
+    }
+
+    console.log('Fetching profile for user:', user.id);
+    setLoading(true);
 
     try {
       const { data, error } = await supabase
@@ -47,8 +55,14 @@ export const useProfile = () => {
         .eq('id', user.id)
         .single();
 
-      if (error && error.code !== 'PGRST116') throw error;
+      console.log('Profile fetch result:', { data, error });
 
+      if (error && error.code !== 'PGRST116') {
+        console.error('Profile fetch error:', error);
+        throw error;
+      }
+
+      console.log('Setting profile data:', data);
       setProfile(data || null);
     } catch (error) {
       console.error('Error fetching profile:', error);
@@ -58,7 +72,13 @@ export const useProfile = () => {
   };
 
   const updateProfile = async (updates: Partial<UserProfile>) => {
-    if (!user) return;
+    if (!user) {
+      console.log('No user available for profile update');
+      return;
+    }
+
+    console.log('Updating profile with data:', updates);
+    console.log('Current user ID:', user.id);
 
     try {
       const { data, error } = await supabase
@@ -71,9 +91,21 @@ export const useProfile = () => {
         .select()
         .single();
 
-      if (error) throw error;
+      console.log('Profile update result:', { data, error });
 
+      if (error) {
+        console.error('Profile update error:', error);
+        throw error;
+      }
+
+      console.log('Profile updated successfully, new data:', data);
       setProfile(data);
+      
+      // Force refetch to ensure data consistency
+      setTimeout(() => {
+        console.log('Refetching profile after update');
+        fetchProfile();
+      }, 100);
     } catch (error) {
       console.error('Error updating profile:', error);
       throw error;
