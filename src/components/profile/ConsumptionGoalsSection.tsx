@@ -22,7 +22,10 @@ const ConsumptionGoalsSection = ({ formData, setFormData }: ConsumptionGoalsSect
       <CardContent className="space-y-4">
         <div>
           <Label>Objectif principal</Label>
-          <Select onValueChange={(value) => setFormData((prev: any) => ({ ...prev, consumption_goal: value }))}>
+          <Select 
+            value={formData.consumption_goal || ''} 
+            onValueChange={(value) => setFormData((prev: any) => ({ ...prev, consumption_goal: value }))}
+          >
             <SelectTrigger className="glass-button">
               <SelectValue placeholder="Sélectionnez votre objectif" />
             </SelectTrigger>
@@ -32,6 +35,7 @@ const ConsumptionGoalsSection = ({ formData, setFormData }: ConsumptionGoalsSect
               <SelectItem value="arret">Arrêt complet</SelectItem>
               <SelectItem value="controle">Meilleur contrôle</SelectItem>
               <SelectItem value="substitution">Substitution (ex: CBD)</SelectItem>
+              <SelectItem value="medical">Usage médical</SelectItem>
             </SelectContent>
           </Select>
         </div>

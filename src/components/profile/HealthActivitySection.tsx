@@ -39,7 +39,10 @@ const HealthActivitySection = ({ formData, setFormData }: HealthActivitySectionP
       <CardContent className="space-y-4">
         <div>
           <Label>Niveau d'activité physique</Label>
-          <Select onValueChange={(value) => setFormData((prev: any) => ({ ...prev, activity_level: value }))}>
+          <Select 
+            value={formData.activity_level || ''} 
+            onValueChange={(value) => setFormData((prev: any) => ({ ...prev, activity_level: value }))}
+          >
             <SelectTrigger className="glass-button">
               <SelectValue placeholder="Sélectionnez votre niveau" />
             </SelectTrigger>

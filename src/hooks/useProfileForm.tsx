@@ -72,7 +72,7 @@ export const useProfileForm = () => {
   const handleSave = async () => {
     console.log('Saving profile with form data:', formData);
     try {
-      await updateProfile({
+      const updateData = {
         username: formData.username || undefined,
         age: formData.age ? parseInt(formData.age.toString()) : undefined,
         weight_kg: formData.weight_kg ? parseFloat(formData.weight_kg.toString()) : undefined,
@@ -99,7 +99,11 @@ export const useProfileForm = () => {
         default_hash_price: parseFloat(formData.default_hash_price.toString()),
         default_cigarette_price: parseFloat(formData.default_cigarette_price.toString()),
         profile_completed: true,
-      });
+      };
+
+      console.log('Sending update data to Supabase:', updateData);
+      
+      await updateProfile(updateData);
       
       toast({
         title: "✅ Profil mis à jour",
