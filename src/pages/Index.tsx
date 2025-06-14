@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -13,6 +12,7 @@ import Stats from '@/components/Stats';
 import DailyAIRecommendation from '@/components/DailyAIRecommendation';
 import AICoach from '@/components/AICoach';
 import { useToast } from '@/hooks/use-toast';
+import AddHistoricalDataButton from '@/components/AddHistoricalDataButton';
 
 const Index = () => {
   const [showForm, setShowForm] = useState(false);
@@ -127,6 +127,7 @@ const Index = () => {
         {/* Header with logout and settings */}
         <div className="text-center py-12 relative">
           <div className="absolute top-0 right-0 flex gap-2">
+            <AddHistoricalDataButton />
             <Button
               onClick={() => navigate('/settings')}
               variant="ghost"
