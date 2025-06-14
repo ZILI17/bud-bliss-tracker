@@ -11,6 +11,7 @@ import AddConsumptionForm from '@/components/AddConsumptionForm';
 import ConsumptionHistory from '@/components/ConsumptionHistory';
 import Stats from '@/components/Stats';
 import PersonalizedRecommendations from '@/components/PersonalizedRecommendations';
+import AICoach from '@/components/AICoach';
 import { useToast } from '@/hooks/use-toast';
 
 const Index = () => {
@@ -165,13 +166,20 @@ const Index = () => {
 
         {/* Main Content */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-8">
-          <TabsList className="grid w-full grid-cols-3 glass-card p-2 h-14">
+          <TabsList className="grid w-full grid-cols-4 glass-card p-2 h-14">
             <TabsTrigger 
               value="home" 
               className="flex items-center gap-2 h-10 glass-button neon-glow"
             >
               <Plus className="w-4 h-4" />
               Mission
+            </TabsTrigger>
+            <TabsTrigger 
+              value="coach" 
+              className="flex items-center gap-2 h-10 glass-button neon-glow"
+            >
+              <Sparkles className="w-4 h-4" />
+              Coach IA
             </TabsTrigger>
             <TabsTrigger 
               value="stats" 
@@ -277,6 +285,10 @@ const Index = () => {
                 />
               </div>
             )}
+          </TabsContent>
+
+          <TabsContent value="coach">
+            <AICoach />
           </TabsContent>
 
           <TabsContent value="stats">
