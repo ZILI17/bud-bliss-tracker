@@ -2,11 +2,10 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { ArrowLeft, User, Settings as SettingsIcon, Euro } from 'lucide-react';
+import { ArrowLeft, User, Settings as SettingsIcon } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import UserProfile from './UserProfile';
-import PriceSettings from './PriceSettings';
 
 const Settings = () => {
   const navigate = useNavigate();
@@ -41,22 +40,7 @@ const Settings = () => {
         {/* Settings Content */}
         <div className="space-y-6">
           {/* Profile Settings */}
-          <Card className="glass-card">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <User className="w-5 h-5" />
-                Profil Utilisateur
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <UserProfile />
-            </CardContent>
-          </Card>
-
-          {/* Price Settings */}  
-          <div className="glass-card p-1 rounded-2xl">
-            <PriceSettings />
-          </div>
+          <UserProfile />
 
           {/* Sign Out */}
           <Card className="glass-card border-red-200">
