@@ -1,7 +1,7 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
+import { useProfile } from '@/hooks/useProfile';
 import { Consumption, ConsumptionStats } from '@/types/consumption';
 
 const STORAGE_KEY = 'consumption-data';
@@ -10,6 +10,7 @@ export const useSupabaseConsumption = () => {
   const [consumptions, setConsumptions] = useState<Consumption[]>([]);
   const [loading, setLoading] = useState(true);
   const { user } = useAuth();
+  const { profile } = useProfile();
 
   // Migrate localStorage data to Supabase once when user first logs in
   const migrateLocalStorageData = async () => {
@@ -107,6 +108,7 @@ export const useSupabaseConsumption = () => {
           quantity: consumption.quantity,
           date: consumption.date,
           note: consumption.note,
+          price: consumption.price,
         })
         .select()
         .single();
@@ -119,6 +121,7 @@ export const useSupabaseConsumption = () => {
         quantity: data.quantity,
         date: data.date,
         note: data.note || undefined,
+        price: data.price || undefined,
       };
 
       setConsumptions(prev => [newConsumption, ...prev]);
@@ -154,6 +157,28 @@ export const useSupabaseConsumption = () => {
     return match ? parseFloat(match[1]) : 0;
   };
 
+  // Fonction pour calculer le prix d'une consommation
+  const calculatePrice = (consumption: Consumption): number => {
+    if (consumption.price && consumption.price > 0) {
+      return consumption.price;
+    }
+
+    // Utiliser les prix par défaut du profil
+    const weight = extractWeight(consumption.quantity, consumption.type);
+    
+    switch (consumption.type) {
+      case 'herbe':
+        return weight * (profile?.default_herbe_price || 10);
+      case 'hash':
+        return weight * (profile?.default_hash_price || 15);
+      case 'cigarette':
+        const count = parseInt(consumption.quantity.match(/\d+/)?.[0] || '1');
+        return count * (profile?.default_cigarette_price || 0.5);
+      default:
+        return 0;
+    }
+  };
+
   const getStats = (): ConsumptionStats => {
     const now = new Date();
     const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
@@ -187,18 +212,29 @@ export const useSupabaseConsumption = () => {
       return acc;
     }, {} as { [key: string]: number });
 
-    // Calculate daily averages over 30 days
-    const dailyAverage = Object.keys(monthTotal).reduce((acc, type) => {
-      acc[type] = Math.round((monthTotal[type] / 30) * 10) / 10;
+    // Calculate cost totals for week and month
+    const weekCost = weekData.reduce((acc, c) => {
+      const cost = calculatePrice(c);
+      acc[c.type] = (acc[c.type] || 0) + cost;
       return acc;
     }, {} as { [key: string]: number });
 
-    const dailyWeightAverage = Object.keys(monthWeight).reduce((acc, type) => {
-      acc[type] = Math.round((monthWeight[type] / 30) * 100) / 100;
+    const monthCost = monthData.reduce((acc, c) => {
+      const cost = calculatePrice(c);
+      acc[c.type] = (acc[c.type] || 0) + cost;
       return acc;
     }, {} as { [key: string]: number });
 
-    // Chart data (last 7 days)
+    // Calculate total cost of all recorded consumptions
+    const totalCost = consumptions.reduce((sum, c) => sum + calculatePrice(c), 0);
+
+    // Calculate daily cost averages over 30 days
+    const dailyCostAverage = Object.keys(monthCost).reduce((acc, type) => {
+      acc[type] = Math.round((monthCost[type] / 30) * 100) / 100;
+      return acc;
+    }, {} as { [key: string]: number });
+
+    // Chart data (last 7 days) with cost information
     const recentData = [];
     for (let i = 6; i >= 0; i--) {
       const date = new Date(now.getTime() - i * 24 * 60 * 60 * 1000);
@@ -216,6 +252,9 @@ export const useSupabaseConsumption = () => {
         cigarette: dayData.filter(c => c.type === 'cigarette').length,
         herbeWeight: dayData.filter(c => c.type === 'herbe').reduce((sum, c) => sum + extractWeight(c.quantity, c.type), 0),
         hashWeight: dayData.filter(c => c.type === 'hash').reduce((sum, c) => sum + extractWeight(c.quantity, c.type), 0),
+        herbeCost: dayData.filter(c => c.type === 'herbe').reduce((sum, c) => sum + calculatePrice(c), 0),
+        hashCost: dayData.filter(c => c.type === 'hash').reduce((sum, c) => sum + calculatePrice(c), 0),
+        cigaretteCost: dayData.filter(c => c.type === 'cigarette').reduce((sum, c) => sum + calculatePrice(c), 0),
       });
     }
 
@@ -226,7 +265,11 @@ export const useSupabaseConsumption = () => {
       recentData,
       weekWeight,
       monthWeight,
-      dailyWeightAverage
+      dailyWeightAverage,
+      weekCost,
+      monthCost,
+      totalCost,
+      dailyCostAverage
     };
   };
 

@@ -5,7 +5,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Cannabis, Cigarette } from 'lucide-react';
+import { Cannabis, Cigarette, Euro } from 'lucide-react';
+import { useProfile } from '@/hooks/useProfile';
 
 interface AddConsumptionFormProps {
   onAdd: (consumption: {
@@ -13,11 +14,13 @@ interface AddConsumptionFormProps {
     quantity: string;
     date: string;
     note?: string;
+    price?: number;
   }) => void;
   onCancel: () => void;
 }
 
 const AddConsumptionForm: React.FC<AddConsumptionFormProps> = ({ onAdd, onCancel }) => {
+  const { profile } = useProfile();
   const [type, setType] = useState<'herbe' | 'hash' | 'cigarette'>('herbe');
   const [quantity, setQuantity] = useState('');
   const [date, setDate] = useState(() => {
@@ -25,6 +28,26 @@ const AddConsumptionForm: React.FC<AddConsumptionFormProps> = ({ onAdd, onCancel
     return new Date(now.getTime() - now.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
   });
   const [note, setNote] = useState('');
+  const [price, setPrice] = useState<number | undefined>();
+
+  // Obtenir le prix par défaut selon le type
+  const getDefaultPrice = (selectedType: 'herbe' | 'hash' | 'cigarette') => {
+    switch (selectedType) {
+      case 'herbe':
+        return profile?.default_herbe_price || 10;
+      case 'hash':
+        return profile?.default_hash_price || 15;
+      case 'cigarette':
+        return profile?.default_cigarette_price || 0.5;
+      default:
+        return 0;
+    }
+  };
+
+  // Mettre à jour le prix par défaut quand le type change
+  React.useEffect(() => {
+    setPrice(getDefaultPrice(type));
+  }, [type, profile]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -35,6 +58,7 @@ const AddConsumptionForm: React.FC<AddConsumptionFormProps> = ({ onAdd, onCancel
       quantity: quantity.trim(),
       date,
       note: note.trim() || undefined,
+      price: price && price > 0 ? price : undefined,
     });
   };
 
@@ -84,6 +108,27 @@ const AddConsumptionForm: React.FC<AddConsumptionFormProps> = ({ onAdd, onCancel
               className="mt-1"
               required
             />
+          </div>
+
+          <div>
+            <Label htmlFor="price" className="text-sm font-medium flex items-center gap-2">
+              <Euro className="w-4 h-4" />
+              Prix (€) - optionnel
+            </Label>
+            <Input
+              id="price"
+              type="number"
+              step="0.1"
+              min="0"
+              value={price || ''}
+              onChange={(e) => setPrice(parseFloat(e.target.value) || undefined)}
+              placeholder="Prix de cette consommation"
+              className="mt-1"
+            />
+            <p className="text-xs text-muted-foreground mt-1">
+              Par défaut: {getDefaultPrice(type)}€ 
+              {type !== 'cigarette' ? '/g' : '/unité'}
+            </p>
           </div>
 
           <div>

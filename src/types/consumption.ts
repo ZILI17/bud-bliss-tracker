@@ -5,6 +5,7 @@ export interface Consumption {
   quantity: string;
   date: string;
   note?: string;
+  price?: number; // Prix de cette consommation spécifique
 }
 
 export interface ConsumptionStats {
@@ -18,8 +19,15 @@ export interface ConsumptionStats {
     cigarette: number;
     herbeWeight: number;
     hashWeight: number;
+    herbeCost: number;
+    hashCost: number;
+    cigaretteCost: number;
   }>;
   weekWeight: { [key: string]: number };
   monthWeight: { [key: string]: number };
   dailyWeightAverage: { [key: string]: number };
+  weekCost: { [key: string]: number };
+  monthCost: { [key: string]: number };
+  totalCost: number;
+  dailyCostAverage: { [key: string]: number };
 }
