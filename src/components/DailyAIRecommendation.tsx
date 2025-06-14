@@ -22,26 +22,87 @@ const DailyAIRecommendation = () => {
     return profile?.consumption_goal && consumptions.length > 0;
   };
 
+  // Check if we already have a recommendation for today
+  const getTodayRecommendationKey = () => {
+    const today = new Date().toISOString().split('T')[0];
+    return `ai_recommendation_${user?.id}_${today}`;
+  };
+
+  const loadTodayRecommendation = () => {
+    if (!user) return;
+    
+    const todayKey = getTodayRecommendationKey();
+    const cachedRec = localStorage.getItem(todayKey);
+    
+    if (cachedRec) {
+      try {
+        const parsed = JSON.parse(cachedRec);
+        setRecommendation(parsed.advice);
+        setLastGenerated(parsed.timestamp);
+        return true;
+      } catch (error) {
+        console.error('Error parsing cached recommendation:', error);
+      }
+    }
+    return false;
+  };
+
+  const saveTodayRecommendation = (advice: string) => {
+    if (!user) return;
+    
+    const todayKey = getTodayRecommendationKey();
+    const dataToCache = {
+      advice,
+      timestamp: new Date().toISOString()
+    };
+    localStorage.setItem(todayKey, JSON.stringify(dataToCache));
+  };
+
   const generateRecommendation = async () => {
     if (!user || !hasEnoughData()) return;
     
     setLoading(true);
     try {
-      // Préparer les données pour l'IA
+      // Préparer les données détaillées pour l'IA
       const today = new Date().toISOString().split('T')[0];
       const todayConsumptions = consumptions.filter(c => c.date.startsWith(today));
       
+      // Séparer par type de substance
+      const consommations_du_jour = todayConsumptions;
+      const consommation_semaine_herbe = Object.values(stats.weekTotal).reduce((acc, val, idx) => {
+        const types = Object.keys(stats.weekTotal);
+        return types[idx] === 'herbe' ? acc + val : acc;
+      }, 0);
+      const consommation_semaine_hash = Object.values(stats.weekTotal).reduce((acc, val, idx) => {
+        const types = Object.keys(stats.weekTotal);
+        return types[idx] === 'hash' ? acc + val : acc;
+      }, 0);
+      const consommation_semaine_cigarette = Object.values(stats.weekTotal).reduce((acc, val, idx) => {
+        const types = Object.keys(stats.weekTotal);
+        return types[idx] === 'cigarette' ? acc + val : acc;
+      }, 0);
+
       const aiData = {
         age: profile?.age,
         objectif: profile?.consumption_goal,
         timeline: profile?.goal_timeline,
         motivation: profile?.goal_motivation,
         objectif_description: profile?.goal_description,
-        consommation_du_jour: todayConsumptions.length,
-        consommation_semaine: Object.values(stats.weekTotal).reduce((a, b) => a + b, 0),
-        consommation_mois: Object.values(stats.monthTotal).reduce((a, b) => a + b, 0),
-        progression: consumptions.length > 7 ? 'stable' : 'debut'
+        consommations_du_jour: consommations_du_jour,
+        consommation_semaine_herbe,
+        consommation_semaine_hash,
+        consommation_semaine_cigarette,
+        progression: consumptions.length > 7 ? 'stable' : 'debut',
+        triggers_moments: profile?.triggers_moments || [],
+        triggers_specific: profile?.triggers_specific || [],
+        motivation_reasons: profile?.motivation_reasons || [],
+        motivation_personal: profile?.motivation_personal,
+        daily_mood: 'normale', // Could be enhanced with user input
+        daily_difficulty: 'normale', // Could be enhanced with user input  
+        daily_notes: 'aucune' // Could be enhanced with user input
       };
+
+      console.log('Sending enhanced data to AI:', aiData);
 
       const { data, error } = await supabase.functions.invoke('ai-coach', {
         body: aiData
@@ -51,7 +112,9 @@ const DailyAIRecommendation = () => {
 
       if (data?.success && data?.advice) {
         setRecommendation(data.advice);
-        setLastGenerated(new Date().toISOString());
+        const timestamp = new Date().toISOString();
+        setLastGenerated(timestamp);
+        saveTodayRecommendation(data.advice);
       }
     } catch (error) {
       console.error('Erreur génération recommandation:', error);
@@ -61,16 +124,32 @@ const DailyAIRecommendation = () => {
   };
 
   useEffect(() => {
-    // Générer automatiquement la recommandation au chargement si on a assez de données
-    if (hasEnoughData() && !recommendation) {
-      generateRecommendation();
+    if (hasEnoughData()) {
+      // Check if we have a cached recommendation for today first
+      const hasCachedRec = loadTodayRecommendation();
+      
+      // If no cached recommendation, generate a new one
+      if (!hasCachedRec) {
+        generateRecommendation();
+      }
     }
   }, [profile, consumptions]);
 
   const formatRecommendation = (text: string) => {
     return text
       .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+      .replace(/🔍 ANALYSE/g, '<strong>🔍 ANALYSE</strong>')
+      .replace(/💡 CONSEIL/g, '<strong>💡 CONSEIL</strong>')
+      .replace(/🔥 MOTIVATION/g, '<strong>🔥 MOTIVATION</strong>')
+      .replace(/🎯 ALTERNATIVE/g, '<strong>🎯 ALTERNATIVE</strong>')
       .replace(/\n/g, '<br/>');
+  };
+
+  const forceRefreshRecommendation = async () => {
+    // Clear today's cache and generate new recommendation
+    const todayKey = getTodayRecommendationKey();
+    localStorage.removeItem(todayKey);
+    await generateRecommendation();
   };
 
   if (!hasEnoughData()) {
@@ -98,11 +177,12 @@ const DailyAIRecommendation = () => {
             <span className="hologram-text">Recommandation IA du Jour</span>
           </div>
           <Button
-            onClick={generateRecommendation}
+            onClick={forceRefreshRecommendation}
             disabled={loading}
             variant="ghost"
             size="sm"
             className="glass-button neon-glow"
+            title="Générer une nouvelle recommandation"
           >
             {loading ? (
               <RefreshCw className="w-4 h-4 animate-spin" />
@@ -120,7 +200,7 @@ const DailyAIRecommendation = () => {
               <Sparkles className="w-6 h-6 text-purple-500 absolute top-3 left-3" />
             </div>
             <p className="text-muted-foreground animate-pulse text-center">
-              Ton IA coach analyse tes données et prépare ta recommandation du jour...
+              Ton IA coach analyse tes données et prépare ta recommandation personnalisée...
             </p>
           </div>
         ) : recommendation ? (
