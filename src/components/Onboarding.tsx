@@ -18,7 +18,7 @@ const Onboarding = () => {
   const { user } = useAuth();
   const { toast } = useToast();
 
-  // Données du profil
+  // Données du profil - maintenant avec tous les nouveaux champs
   const [profileData, setProfileData] = useState({
     age: '',
     weight_kg: '',
@@ -28,6 +28,14 @@ const Onboarding = () => {
     goal_timeline: '',
     goal_motivation: '',
     goal_description: '',
+    triggers_moments: [] as string[],
+    triggers_specific: [] as string[],
+    motivation_reasons: [] as string[],
+    motivation_personal: '',
+    support_entourage: null as boolean | null,
+    support_preference: '',
+    alternative_activities: [] as string[],
+    wants_daily_suggestions: true,
     medical_conditions: [] as string[],
     medications: [] as string[],
     default_herbe_quantity: '0.5',
@@ -71,6 +79,14 @@ const Onboarding = () => {
           goal_timeline: profileData.goal_timeline || null,
           goal_motivation: profileData.goal_motivation || null,
           goal_description: profileData.goal_description || null,
+          triggers_moments: profileData.triggers_moments.length > 0 ? profileData.triggers_moments : null,
+          triggers_specific: profileData.triggers_specific.length > 0 ? profileData.triggers_specific : null,
+          motivation_reasons: profileData.motivation_reasons.length > 0 ? profileData.motivation_reasons : null,
+          motivation_personal: profileData.motivation_personal || null,
+          support_entourage: profileData.support_entourage,
+          support_preference: profileData.support_preference || null,
+          alternative_activities: profileData.alternative_activities.length > 0 ? profileData.alternative_activities : null,
+          wants_daily_suggestions: profileData.wants_daily_suggestions,
           medical_conditions: profileData.medical_conditions.length > 0 ? profileData.medical_conditions : null,
           medications: profileData.medications.length > 0 ? profileData.medications : null,
           default_herbe_quantity: parseFloat(profileData.default_herbe_quantity),
@@ -284,15 +300,16 @@ const Onboarding = () => {
                   <div className="space-y-2 text-sm">
                     <p><strong>Objectif :</strong> {profileData.consumption_goal || 'Non défini'}</p>
                     <p><strong>Délai :</strong> {profileData.goal_timeline || 'Non défini'}</p>
-                    <p><strong>Motivation :</strong> {profileData.goal_motivation || 'Non définie'}</p>
-                    {profileData.goal_description && (
-                      <p><strong>Description :</strong> {profileData.goal_description}</p>
-                    )}
+                    <p><strong>Description :</strong> {profileData.goal_description || 'Non définie'}</p>
+                    <p><strong>Déclencheurs :</strong> {profileData.triggers_moments?.length || 0} moments identifiés</p>
+                    <p><strong>Motivations :</strong> {profileData.motivation_reasons?.length || 0} raisons choisies</p>
+                    <p><strong>Activités alternatives :</strong> {profileData.alternative_activities?.length || 0} activités</p>
+                    <p><strong>Soutien entourage :</strong> {profileData.support_entourage ? 'Oui' : 'Non'}</p>
                   </div>
                 </div>
                 <div className="text-center">
                   <p className="text-sm text-muted-foreground mb-4">
-                    🤖 Ton IA coach va maintenant pouvoir te donner des conseils personnalisés chaque jour !
+                    🤖 Ton IA coach va maintenant pouvoir te donner des conseils ultra-personnalisés !
                   </p>
                 </div>
               </div>

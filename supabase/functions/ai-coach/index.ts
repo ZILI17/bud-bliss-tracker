@@ -1,75 +1,78 @@
 
-import "https://deno.land/x/xhr@0.1.0/mod.ts";
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
+import "https://deno.land/x/xhr@0.1.0/mod.ts"
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-};
-
-interface CoachRequest {
-  age?: number;
-  sexe?: string;
-  poids?: number;
-  taille?: number;
-  activite_physique?: string;
-  objectif?: string;
-  consommation_du_jour?: number;
-  humeur?: string;
-  difficulte?: string;
-  progression?: string;
 }
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
-    return new Response(null, { headers: corsHeaders });
+    return new Response('ok', { headers: corsHeaders })
   }
 
   try {
-    const googleApiKey = Deno.env.get('GOOGLE_AI_API_KEY');
-    
-    if (!googleApiKey) {
-      throw new Error('GOOGLE_AI_API_KEY not configured');
+    const { context } = await req.json()
+    console.log('Received context:', JSON.stringify(context, null, 2))
+
+    const GOOGLE_AI_API_KEY = Deno.env.get('GOOGLE_AI_API_KEY')
+    if (!GOOGLE_AI_API_KEY) {
+      throw new Error('Google AI API key not configured')
     }
 
-    const requestData: CoachRequest = await req.json();
-    
-    // Construction du prompt système personnalisé
-    const systemPrompt = `Tu es un coach bienveillant spécialisé dans l'accompagnement de personnes qui souhaitent réduire leur consommation de cannabis et/ou tabac. 
+    // Construire un prompt ultra-personnalisé avec toutes les données
+    const systemPrompt = `Tu es un coach IA bienveillant spécialisé dans l'accompagnement personnalisé pour la réduction de consommation de substances. 
 
-Ton rôle :
-- Être empathique, positif et sans jugement
-- Proposer des conseils personnalisés basés sur les données de l'utilisateur
-- Donner des alternatives concrètes à la consommation
-- Motiver et encourager les progrès même petits
-- Ne JAMAIS donner de conseils médicaux
-- Toujours terminer par une action simple et réalisable
+PROFIL UTILISATEUR COMPLET :
+- Âge: ${context.age || 'non précisé'} ans
+- Poids/Taille: ${context.weight_kg || '?'}kg / ${context.height_cm || '?'}cm
+- Activité physique: ${context.activity_level || 'non précisée'}
 
-Structure ta réponse en 4 parties courtes :
-1. **Analyse** : Commentaire sur la situation actuelle
-2. **Conseil** : Recommandation personnalisée pour aujourd'hui
-3. **Motivation** : Message d'encouragement adapté
-4. **Action** : Une suggestion d'alternative concrète à faire maintenant
+OBJECTIF DÉFINI :
+- Objectif principal: ${context.consumption_goal || 'non défini'}
+- Description personnelle: "${context.goal_description || 'non précisée'}"
+- Délai souhaité: ${context.goal_timeline || 'non précisé'}
 
-Garde un ton humain, proche et bienveillant.`;
+DÉCLENCHEURS IDENTIFIÉS :
+- Moments à risque: ${context.triggers_moments?.join(', ') || 'non identifiés'}
+- Déclencheurs spécifiques: ${context.triggers_specific?.join(', ') || 'non identifiés'}
 
-    // Construction du prompt utilisateur avec les données
-    const userPrompt = `Voici mes données du jour :
-${requestData.age ? `- Âge : ${requestData.age} ans` : ''}
-${requestData.sexe ? `- Sexe : ${requestData.sexe}` : ''}
-${requestData.poids ? `- Poids : ${requestData.poids} kg` : ''}
-${requestData.taille ? `- Taille : ${requestData.taille} cm` : ''}
-${requestData.activite_physique ? `- Activité physique : ${requestData.activite_physique}` : ''}
-${requestData.objectif ? `- Mon objectif : ${requestData.objectif}` : ''}
-${requestData.consommation_du_jour !== undefined ? `- Consommation aujourd'hui : ${requestData.consommation_du_jour}` : ''}
-${requestData.humeur ? `- Humeur : ${requestData.humeur}` : ''}
-${requestData.difficulte ? `- Difficulté ressentie : ${requestData.difficulte}` : ''}
-${requestData.progression ? `- Progression : ${requestData.progression}` : ''}
+MOTIVATIONS :
+- Raisons principales: ${context.motivation_reasons?.join(', ') || 'non précisées'}
+- Motivation personnelle: "${context.motivation_personal || 'non précisée'}"
 
-Peux-tu me donner un conseil personnalisé pour m'aider aujourd'hui ?`;
+SOUTIEN ET PRÉFÉRENCES :
+- Soutien entourage: ${context.support_entourage ? 'Oui' : 'Non'}
+- Type de conseils préféré: ${context.support_preference || 'non précisé'}
 
-    // Appel à l'API Google Gemini
-    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${googleApiKey}`, {
+ACTIVITÉS ALTERNATIVES CONNUES :
+${context.alternative_activities?.join(', ') || 'Aucune identifiée'}
+- Veut des suggestions quotidiennes: ${context.wants_daily_suggestions ? 'Oui' : 'Non'}
+
+DONNÉES DU JOUR :
+- Humeur: ${context.daily_mood || 'non précisée'}
+- Difficulté ressentie: ${context.daily_difficulty || 'non précisée'}
+- Notes: "${context.daily_notes || 'aucune'}"
+
+STATISTIQUES DE CONSOMMATION :
+- Moyenne quotidienne: ${context.stats?.daily_average || 0} fois/jour
+- Total semaine: ${context.stats?.weekly_total || 0} fois
+- Total mois: ${context.stats?.monthly_total || 0} fois
+- Tendance récente: ${context.stats?.recent_trend || 'inconnue'}
+
+INSTRUCTIONS :
+1. Analyse la situation du jour en tenant compte de TOUT le contexte
+2. Donne une recommandation concrète et personnalisée
+3. Propose une action alternative adaptée aux activités qu'il aime déjà
+4. Sois encourageant et bienveillant, jamais culpabilisant
+5. Termine par un message motivant lié à son objectif personnel
+6. Si des déclencheurs sont identifiés aujourd'hui, donne des conseils spécifiques
+7. Utilise ses motivations personnelles pour l'encourager
+
+Réponds en français, de manière humaine et personnalisée. Maximum 200 mots.`
+
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${GOOGLE_AI_API_KEY}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -77,41 +80,47 @@ Peux-tu me donner un conseil personnalisé pour m'aider aujourd'hui ?`;
       body: JSON.stringify({
         contents: [{
           parts: [{
-            text: `${systemPrompt}\n\n${userPrompt}`
+            text: systemPrompt
           }]
         }],
         generationConfig: {
           temperature: 0.7,
           topK: 40,
           topP: 0.95,
-          maxOutputTokens: 800,
+          maxOutputTokens: 300,
         }
-      }),
-    });
+      })
+    })
 
     if (!response.ok) {
-      throw new Error(`Gemini API error: ${response.status}`);
+      const errorText = await response.text()
+      console.error('Google AI API Error:', errorText)
+      throw new Error(`Google AI API error: ${response.status}`)
     }
 
-    const data = await response.json();
-    const generatedAdvice = data.candidates?.[0]?.content?.parts?.[0]?.text || 'Désolé, je n\'ai pas pu générer de conseil pour le moment.';
+    const data = await response.json()
+    console.log('Google AI Response:', JSON.stringify(data, null, 2))
+    
+    const aiResponse = data.candidates?.[0]?.content?.parts?.[0]?.text || 'Désolé, je ne peux pas générer de conseil pour le moment.'
 
-    return new Response(JSON.stringify({ 
-      advice: generatedAdvice,
-      success: true 
-    }), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
+    return new Response(
+      JSON.stringify({ advice: aiResponse }),
+      {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      },
+    )
 
   } catch (error) {
-    console.error('Error in ai-coach function:', error);
-    return new Response(JSON.stringify({ 
-      error: 'Erreur lors de la génération du conseil',
-      details: error.message,
-      success: false 
-    }), {
-      status: 500,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
+    console.error('Error in ai-coach function:', error)
+    return new Response(
+      JSON.stringify({ 
+        error: 'Erreur lors de la génération du conseil',
+        details: error.message 
+      }),
+      {
+        status: 500,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      },
+    )
   }
-});
+})

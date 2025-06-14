@@ -4,14 +4,11 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Activity } from 'lucide-react';
+import { Activity, Heart } from 'lucide-react';
 
 interface HealthActivitySectionProps {
-  formData: {
-    activity_level: string;
-    medical_conditions: string[];
-  };
-  setFormData: React.Dispatch<React.SetStateAction<any>>;
+  formData: any;
+  setFormData: (data: any) => void;
 }
 
 const HealthActivitySection = ({ formData, setFormData }: HealthActivitySectionProps) => {
@@ -21,34 +18,28 @@ const HealthActivitySection = ({ formData, setFormData }: HealthActivitySectionP
   ];
 
   const handleMedicalConditionChange = (condition: string, checked: boolean) => {
-    if (checked) {
-      setFormData(prev => ({
-        ...prev,
-        medical_conditions: [...prev.medical_conditions, condition]
-      }));
-    } else {
-      setFormData(prev => ({
-        ...prev,
-        medical_conditions: prev.medical_conditions.filter(c => c !== condition)
-      }));
-    }
+    setFormData((prev: any) => {
+      const currentConditions = prev.medical_conditions || [];
+      if (checked) {
+        return { ...prev, medical_conditions: [...currentConditions, condition] };
+      } else {
+        return { ...prev, medical_conditions: currentConditions.filter((c: string) => c !== condition) };
+      }
+    });
   };
 
   return (
     <Card className="glass-card">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <Activity className="w-5 h-5" />
-          Santé & Activité Physique
+          <Heart className="w-5 h-5" />
+          Santé & Activité
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         <div>
           <Label>Niveau d'activité physique</Label>
-          <Select 
-            value={formData.activity_level} 
-            onValueChange={(value) => setFormData(prev => ({ ...prev, activity_level: value }))}
-          >
+          <Select onValueChange={(value) => setFormData((prev: any) => ({ ...prev, activity_level: value }))}>
             <SelectTrigger className="glass-button">
               <SelectValue placeholder="Sélectionnez votre niveau" />
             </SelectTrigger>
@@ -68,11 +59,11 @@ const HealthActivitySection = ({ formData, setFormData }: HealthActivitySectionP
             {medicalConditions.map((condition) => (
               <div key={condition} className="flex items-center space-x-2">
                 <Checkbox
-                  id={condition}
-                  checked={formData.medical_conditions.includes(condition)}
+                  id={`medical-${condition}`}
+                  checked={formData.medical_conditions?.includes(condition) || false}
                   onCheckedChange={(checked) => handleMedicalConditionChange(condition, checked as boolean)}
                 />
-                <Label htmlFor={condition} className="text-sm">{condition}</Label>
+                <Label htmlFor={`medical-${condition}`} className="text-sm">{condition}</Label>
               </div>
             ))}
           </div>
