@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Legend, Tooltip, PieChart, Pie, Cell } from 'recharts';
@@ -28,8 +27,19 @@ const Stats: React.FC<StatsProps> = ({ stats }) => {
     fill: typeColors[type as keyof typeof typeColors],
   }));
 
+  // Données pour le graphique en camembert des poids
+  const pieWeightData = Object.entries(stats.monthWeight || {})
+    .filter(([type]) => type !== 'cigarette')
+    .map(([type, weight]) => ({
+      name: typeLabels[type as keyof typeof typeLabels],
+      value: Math.round(weight * 100) / 100,
+      fill: typeColors[type as keyof typeof typeColors],
+    }));
+
   const totalMonth = Object.values(stats.monthTotal).reduce((a, b) => a + b, 0);
   const totalWeek = Object.values(stats.weekTotal).reduce((a, b) => a + b, 0);
+  const totalMonthWeight = Object.values(stats.monthWeight || {}).reduce((a, b) => a + b, 0);
+  const totalWeekWeight = Object.values(stats.weekWeight || {}).reduce((a, b) => a + b, 0);
 
   // Formatage personnalisé du tooltip
   const CustomTooltip = ({ active, payload, label }: any) => {
@@ -63,10 +73,25 @@ const Stats: React.FC<StatsProps> = ({ stats }) => {
     return null;
   };
 
+  const CustomWeightTooltip = ({ active, payload }: any) => {
+    if (active && payload && payload.length) {
+      const data = payload[0];
+      const percentage = ((data.value / totalMonthWeight) * 100).toFixed(1);
+      return (
+        <div className="bg-white p-3 border rounded-lg shadow-lg">
+          <p className="font-semibold">{data.name}</p>
+          <p>{`${data.value}g consommé${data.value > 1 ? 's' : ''}`}</p>
+          <p>{`${percentage}% du poids total`}</p>
+        </div>
+      );
+    }
+    return null;
+  };
+
   return (
     <div className="space-y-6">
       {/* Statistiques rapides */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card className="text-center">
           <CardHeader className="pb-2">
             <CardTitle className="text-lg font-bold text-blue-600">
@@ -109,18 +134,43 @@ const Stats: React.FC<StatsProps> = ({ stats }) => {
 
         <Card className="text-center">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Moyenne/jour (30j)
+            <CardTitle className="text-lg font-bold text-purple-600">
+              {Math.round(totalWeekWeight * 100) / 100}g
             </CardTitle>
+            <p className="text-sm text-muted-foreground">Poids cette semaine</p>
           </CardHeader>
           <CardContent className="space-y-1">
-            {Object.entries(stats.dailyAverage).map(([type, avg]) => (
+            {Object.entries(stats.weekWeight || {})
+              .filter(([type]) => type !== 'cigarette')
+              .map(([type, weight]) => (
               <div key={type} className="flex justify-between text-sm">
                 <span>{typeLabels[type as keyof typeof typeLabels]}</span>
-                <span className="font-medium">{avg}</span>
+                <span className="font-medium">{Math.round(weight * 100) / 100}g</span>
               </div>
             ))}
-            {Object.keys(stats.dailyAverage).length === 0 && (
+            {Object.keys(stats.weekWeight || {}).filter(type => type !== 'cigarette').length === 0 && (
+              <p className="text-sm text-muted-foreground">Aucune donnée</p>
+            )}
+          </CardContent>
+        </Card>
+
+        <Card className="text-center">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-lg font-bold text-orange-600">
+              {Math.round(totalMonthWeight * 100) / 100}g
+            </CardTitle>
+            <p className="text-sm text-muted-foreground">Poids ce mois</p>
+          </CardHeader>
+          <CardContent className="space-y-1">
+            {Object.entries(stats.monthWeight || {})
+              .filter(([type]) => type !== 'cigarette')
+              .map(([type, weight]) => (
+              <div key={type} className="flex justify-between text-sm">
+                <span>{typeLabels[type as keyof typeof typeLabels]}</span>
+                <span className="font-medium">{Math.round(weight * 100) / 100}g</span>
+              </div>
+            ))}
+            {Object.keys(stats.monthWeight || {}).filter(type => type !== 'cigarette').length === 0 && (
               <p className="text-sm text-muted-foreground">Aucune donnée</p>
             )}
           </CardContent>
@@ -136,6 +186,7 @@ const Stats: React.FC<StatsProps> = ({ stats }) => {
               <CardTitle className="text-lg">Évolution (7 derniers jours)</CardTitle>
               <p className="text-sm text-muted-foreground">
                 Total: {stats.recentData.reduce((acc, day) => acc + day.herbe + day.hash + day.cigarette, 0)} consommations
+                {totalWeekWeight > 0 && ` • ${Math.round(totalWeekWeight * 100) / 100}g`}
               </p>
             </CardHeader>
             <CardContent>
@@ -156,11 +207,11 @@ const Stats: React.FC<StatsProps> = ({ stats }) => {
           </Card>
         )}
 
-        {/* Répartition du mois */}
+        {/* Répartition du mois par nombre */}
         {pieData.length > 0 && (
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg">Répartition ce mois</CardTitle>
+              <CardTitle className="text-lg">Répartition ce mois (nombre)</CardTitle>
               <p className="text-sm text-muted-foreground">
                 Total: {totalMonth} consommations
               </p>
@@ -188,6 +239,77 @@ const Stats: React.FC<StatsProps> = ({ stats }) => {
             </CardContent>
           </Card>
         )}
+
+        {/* Répartition du mois par poids */}
+        {pieWeightData.length > 0 && (
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">Répartition ce mois (poids)</CardTitle>
+              <p className="text-sm text-muted-foreground">
+                Total: {Math.round(totalMonthWeight * 100) / 100}g consommés
+              </p>
+            </CardHeader>
+            <CardContent>
+              <div className="h-64">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={pieWeightData}
+                      cx="50%"
+                      cy="50%"
+                      outerRadius={80}
+                      dataKey="value"
+                      label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                    >
+                      {pieWeightData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.fill} />
+                      ))}
+                    </Pie>
+                    <Tooltip content={<CustomWeightTooltip />} />
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Moyennes journalières */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg">Moyennes journalières (30j)</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <div>
+                <h4 className="text-sm font-medium mb-2">Par nombre de consommations</h4>
+                <div className="space-y-1">
+                  {Object.entries(stats.dailyAverage).map(([type, avg]) => (
+                    <div key={type} className="flex justify-between text-sm">
+                      <span>{typeLabels[type as keyof typeof typeLabels]}</span>
+                      <span className="font-medium">{avg}/jour</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              
+              {Object.keys(stats.dailyWeightAverage || {}).length > 0 && (
+                <div>
+                  <h4 className="text-sm font-medium mb-2">Par poids consommé</h4>
+                  <div className="space-y-1">
+                    {Object.entries(stats.dailyWeightAverage || {})
+                      .filter(([type]) => type !== 'cigarette')
+                      .map(([type, avg]) => (
+                      <div key={type} className="flex justify-between text-sm">
+                        <span>{typeLabels[type as keyof typeof typeLabels]}</span>
+                        <span className="font-medium">{avg}g/jour</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          </CardContent>
+        </Card>
       </div>
 
       {/* Message si pas de données */}
