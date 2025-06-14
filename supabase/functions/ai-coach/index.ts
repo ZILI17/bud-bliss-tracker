@@ -13,8 +13,11 @@ serve(async (req) => {
   }
 
   try {
-    const { context } = await req.json()
-    console.log('Received context:', JSON.stringify(context, null, 2))
+    const requestBody = await req.json()
+    console.log('Raw request body:', JSON.stringify(requestBody, null, 2))
+    
+    const { context } = requestBody
+    console.log('Extracted context:', JSON.stringify(context, null, 2))
 
     if (!context) {
       console.error('No context provided')
@@ -29,7 +32,14 @@ serve(async (req) => {
 
     const GOOGLE_AI_API_KEY = Deno.env.get('GOOGLE_AI_API_KEY')
     if (!GOOGLE_AI_API_KEY) {
-      throw new Error('Google AI API key not configured')
+      console.error('Google AI API key not configured')
+      return new Response(
+        JSON.stringify({ error: 'Google AI API key not configured' }),
+        {
+          status: 500,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        },
+      )
     }
 
     // Construire un prompt ultra-personnalisé avec toutes les données
@@ -47,19 +57,19 @@ OBJECTIF DÉFINI :
 - Motivation: "${context.goal_motivation || 'non précisée'}"
 
 DÉCLENCHEURS IDENTIFIÉS :
-- Moments à risque: ${context.triggers_moments?.join(', ') || 'non identifiés'}
-- Déclencheurs spécifiques: ${context.triggers_specific?.join(', ') || 'non identifiés'}
+- Moments à risque: ${Array.isArray(context.triggers_moments) ? context.triggers_moments.join(', ') : 'non identifiés'}
+- Déclencheurs spécifiques: ${Array.isArray(context.triggers_specific) ? context.triggers_specific.join(', ') : 'non identifiés'}
 
 MOTIVATIONS :
-- Raisons principales: ${context.motivation_reasons?.join(', ') || 'non précisées'}
+- Raisons principales: ${Array.isArray(context.motivation_reasons) ? context.motivation_reasons.join(', ') : 'non précisées'}
 - Motivation personnelle: "${context.motivation_personal || 'non précisée'}"
 
 SOUTIEN ET PRÉFÉRENCES :
-- Soutien entourage: ${context.support_entourage ? 'Oui' : 'Non'}
+- Soutien entourage: ${context.support_entourage ? 'Oui' : context.support_entourage === false ? 'Non' : 'Non précisé'}
 - Type de conseils préféré: ${context.support_preference || 'non précisé'}
 
 ACTIVITÉS ALTERNATIVES CONNUES :
-${context.alternative_activities?.join(', ') || 'Aucune identifiée'}
+${Array.isArray(context.alternative_activities) ? context.alternative_activities.join(', ') : 'Aucune identifiée'}
 - Veut des suggestions quotidiennes: ${context.wants_daily_suggestions ? 'Oui' : 'Non'}
 
 DONNÉES DU JOUR :
@@ -84,6 +94,8 @@ INSTRUCTIONS :
 
 Réponds en français, de manière humaine et personnalisée. Maximum 200 mots.`
 
+    console.log('Calling Google AI with prompt length:', systemPrompt.length)
+
     const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${GOOGLE_AI_API_KEY}`, {
       method: 'POST',
       headers: {
@@ -106,12 +118,21 @@ Réponds en français, de manière humaine et personnalisée. Maximum 200 mots.`
 
     if (!response.ok) {
       const errorText = await response.text()
-      console.error('Google AI API Error:', errorText)
-      throw new Error(`Google AI API error: ${response.status}`)
+      console.error('Google AI API Error:', response.status, errorText)
+      return new Response(
+        JSON.stringify({ 
+          error: `Google AI API error: ${response.status}`,
+          advice: 'Désolé, je ne peux pas générer de conseil pour le moment. Veuillez réessayer dans quelques instants.'
+        }),
+        {
+          status: 200, // On retourne 200 pour éviter les erreurs côté client
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        },
+      )
     }
 
     const data = await response.json()
-    console.log('Google AI Response:', JSON.stringify(data, null, 2))
+    console.log('Google AI Response received')
     
     const aiResponse = data.candidates?.[0]?.content?.parts?.[0]?.text || 'Désolé, je ne peux pas générer de conseil pour le moment.'
 
@@ -127,10 +148,10 @@ Réponds en français, de manière humaine et personnalisée. Maximum 200 mots.`
     return new Response(
       JSON.stringify({ 
         error: 'Erreur lors de la génération du conseil',
-        details: error.message 
+        advice: 'Désolé, une erreur technique est survenue. Veuillez réessayer.'
       }),
       {
-        status: 500,
+        status: 200, // On retourne 200 avec un message d'erreur dans advice
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       },
     )

@@ -71,7 +71,7 @@ const AICoach = () => {
         
         // Activités alternatives
         alternative_activities: profile.alternative_activities || [],
-        wants_daily_suggestions: profile.wants_daily_suggestions || true,
+        wants_daily_suggestions: profile.wants_daily_suggestions !== false, // par défaut true
         
         // Données du jour (saisies par l'utilisateur)
         daily_mood: formData.mood || null,
@@ -100,15 +100,28 @@ const AICoach = () => {
       }
 
       console.log('AI Coach Response:', data);
-      setAdvice(data?.advice || "Désolé, je ne peux pas générer de conseil pour le moment.");
+      
+      // Gérer les réponses avec ou sans erreur
+      if (data?.advice) {
+        setAdvice(data.advice);
+      } else if (data?.error) {
+        setAdvice("Désolé, je ne peux pas générer de conseil pour le moment. Veuillez réessayer dans quelques instants.");
+        toast({
+          title: "Information",
+          description: "Le service de conseil IA est temporairement indisponible.",
+          variant: "default",
+        });
+      } else {
+        setAdvice("Désolé, je ne peux pas générer de conseil pour le moment.");
+      }
     } catch (error: any) {
       console.error('Error generating AI advice:', error);
+      setAdvice("Désolé, une erreur technique est survenue. Veuillez réessayer dans quelques instants.");
       toast({
-        title: "Erreur",
-        description: "Impossible de générer un conseil personnalisé pour le moment.",
+        title: "Erreur temporaire",
+        description: "Le service de conseil IA rencontre des difficultés techniques.",
         variant: "destructive",
       });
-      setAdvice("Désolé, je ne peux pas générer de conseil pour le moment. Veuillez réessayer.");
     } finally {
       setLoading(false);
     }

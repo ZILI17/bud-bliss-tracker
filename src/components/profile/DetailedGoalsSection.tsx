@@ -95,7 +95,10 @@ const DetailedGoalsSection = ({ formData, setFormData }: DetailedGoalsSectionPro
           
           <div>
             <Label htmlFor="goal_timeline">En combien de temps veux-tu l'atteindre ?</Label>
-            <Select onValueChange={(value) => setFormData((prev: any) => ({ ...prev, goal_timeline: value }))}>
+            <Select 
+              value={formData.goal_timeline || ''} 
+              onValueChange={(value) => setFormData((prev: any) => ({ ...prev, goal_timeline: value }))}
+            >
               <SelectTrigger className="glass-button">
                 <SelectValue placeholder="Sélectionne un délai" />
               </SelectTrigger>
@@ -205,7 +208,10 @@ const DetailedGoalsSection = ({ formData, setFormData }: DetailedGoalsSectionPro
         <CardContent className="space-y-4">
           <div>
             <Label>As-tu du soutien dans ton entourage ?</Label>
-            <Select onValueChange={(value) => setFormData((prev: any) => ({ ...prev, support_entourage: value === 'true' }))}>
+            <Select 
+              value={formData.support_entourage === true ? 'true' : formData.support_entourage === false ? 'false' : ''} 
+              onValueChange={(value) => setFormData((prev: any) => ({ ...prev, support_entourage: value === 'true' }))}
+            >
               <SelectTrigger className="glass-button">
                 <SelectValue placeholder="Sélectionne une réponse" />
               </SelectTrigger>
@@ -218,7 +224,10 @@ const DetailedGoalsSection = ({ formData, setFormData }: DetailedGoalsSectionPro
 
           <div>
             <Label>Type de conseils préféré</Label>
-            <Select onValueChange={(value) => setFormData((prev: any) => ({ ...prev, support_preference: value }))}>
+            <Select 
+              value={formData.support_preference || ''} 
+              onValueChange={(value) => setFormData((prev: any) => ({ ...prev, support_preference: value }))}
+            >
               <SelectTrigger className="glass-button">
                 <SelectValue placeholder="Sélectionne ton style" />
               </SelectTrigger>
@@ -259,7 +268,10 @@ const DetailedGoalsSection = ({ formData, setFormData }: DetailedGoalsSectionPro
 
           <div>
             <Label>Suggestions quotidiennes</Label>
-            <Select onValueChange={(value) => setFormData((prev: any) => ({ ...prev, wants_daily_suggestions: value === 'true' }))}>
+            <Select 
+              value={formData.wants_daily_suggestions === true ? 'true' : formData.wants_daily_suggestions === false ? 'false' : 'true'} 
+              onValueChange={(value) => setFormData((prev: any) => ({ ...prev, wants_daily_suggestions: value === 'true' }))}
+            >
               <SelectTrigger className="glass-button">
                 <SelectValue placeholder="Veux-tu des suggestions d'activités ?" />
               </SelectTrigger>
