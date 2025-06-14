@@ -16,15 +16,18 @@ serve(async (req) => {
     const requestBody = await req.json()
     console.log('Raw request body:', JSON.stringify(requestBody, null, 2))
     
-    const { context } = requestBody
-    console.log('Extracted context:', JSON.stringify(context, null, 2))
+    // Accepter les données soit sous forme de 'context' (AICoach) soit directement (DailyAIRecommendation)
+    const data = requestBody.context || requestBody
+    console.log('Processed data:', JSON.stringify(data, null, 2))
 
-    if (!context) {
-      console.error('No context provided')
+    if (!data) {
+      console.error('No data provided')
       return new Response(
-        JSON.stringify({ error: 'Context is required' }),
+        JSON.stringify({ 
+          advice: 'Aucune donnée fournie pour générer le conseil.'
+        }),
         {
-          status: 400,
+          status: 200,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         },
       )
@@ -44,55 +47,43 @@ serve(async (req) => {
       )
     }
 
-    // Construire un prompt ultra-personnalisé avec toutes les données
-    const systemPrompt = `Tu es un coach IA bienveillant spécialisé dans l'accompagnement personnalisé pour la réduction de consommation de substances. 
+    // Construire un prompt adapté aux données reçues
+    const systemPrompt = `Tu es un coach IA bienveillant spécialisé dans l'accompagnement personnalisé pour la réduction de consommation de substances.
 
-PROFIL UTILISATEUR COMPLET :
-- Âge: ${context.age || 'non précisé'} ans
-- Poids/Taille: ${context.weight_kg || '?'}kg / ${context.height_cm || '?'}cm
-- Activité physique: ${context.activity_level || 'non précisée'}
+DONNÉES UTILISATEUR :
+- Âge: ${data.age || 'non précisé'} ans
+- Objectif: ${data.consumption_goal || data.objectif || 'non défini'}
+- Description objectif: "${data.goal_description || data.objectif_description || 'non précisée'}"
+- Timeline: ${data.goal_timeline || data.timeline || 'non précisé'}
+- Motivation: "${data.goal_motivation || data.motivation || 'non précisée'}"
 
-OBJECTIF DÉFINI :
-- Objectif principal: ${context.consumption_goal || 'non défini'}
-- Description personnelle: "${context.goal_description || 'non précisée'}"
-- Délai souhaité: ${context.goal_timeline || 'non précisé'}
-- Motivation: "${context.goal_motivation || 'non précisée'}"
+CONSOMMATION ACTUELLE :
+- Aujourd'hui: ${data.consommation_du_jour || 0} fois
+- Cette semaine: ${data.consommation_semaine || 0} fois  
+- Ce mois: ${data.consommation_mois || 0} fois
+- Progression: ${data.progression || 'début du suivi'}
 
 DÉCLENCHEURS IDENTIFIÉS :
-- Moments à risque: ${Array.isArray(context.triggers_moments) ? context.triggers_moments.join(', ') : 'non identifiés'}
-- Déclencheurs spécifiques: ${Array.isArray(context.triggers_specific) ? context.triggers_specific.join(', ') : 'non identifiés'}
+- Moments à risque: ${Array.isArray(data.triggers_moments) ? data.triggers_moments.join(', ') : 'non identifiés'}
+- Déclencheurs spécifiques: ${Array.isArray(data.triggers_specific) ? data.triggers_specific.join(', ') : 'non identifiés'}
 
 MOTIVATIONS :
-- Raisons principales: ${Array.isArray(context.motivation_reasons) ? context.motivation_reasons.join(', ') : 'non précisées'}
-- Motivation personnelle: "${context.motivation_personal || 'non précisée'}"
+- Raisons principales: ${Array.isArray(data.motivation_reasons) ? data.motivation_reasons.join(', ') : 'non précisées'}
+- Motivation personnelle: "${data.motivation_personal || 'non précisée'}"
 
-SOUTIEN ET PRÉFÉRENCES :
-- Soutien entourage: ${context.support_entourage ? 'Oui' : context.support_entourage === false ? 'Non' : 'Non précisé'}
-- Type de conseils préféré: ${context.support_preference || 'non précisé'}
-
-ACTIVITÉS ALTERNATIVES CONNUES :
-${Array.isArray(context.alternative_activities) ? context.alternative_activities.join(', ') : 'Aucune identifiée'}
-- Veut des suggestions quotidiennes: ${context.wants_daily_suggestions ? 'Oui' : 'Non'}
-
-DONNÉES DU JOUR :
-- Humeur: ${context.daily_mood || 'non précisée'}
-- Difficulté ressentie: ${context.daily_difficulty || 'non précisée'}
-- Notes: "${context.daily_notes || 'aucune'}"
-
-STATISTIQUES DE CONSOMMATION :
-- Moyenne quotidienne: ${context.stats?.daily_average || 0} fois/jour
-- Total semaine: ${context.stats?.weekly_total || 0} fois
-- Total mois: ${context.stats?.monthly_total || 0} fois
-- Tendance récente: ${context.stats?.recent_trend || 'inconnue'}
+HUMEUR ET NOTES DU JOUR :
+- Humeur: ${data.daily_mood || 'non précisée'}
+- Difficulté: ${data.daily_difficulty || 'non précisée'}
+- Notes: "${data.daily_notes || 'aucune'}"
 
 INSTRUCTIONS :
-1. Analyse la situation du jour en tenant compte de TOUT le contexte
-2. Donne une recommandation concrète et personnalisée
-3. Propose une action alternative adaptée aux activités qu'il aime déjà
+1. Analyse la situation du jour en tenant compte du contexte personnel
+2. Donne une recommandation concrète et personnalisée 
+3. Propose une action alternative adaptée
 4. Sois encourageant et bienveillant, jamais culpabilisant
-5. Termine par un message motivant lié à son objectif personnel
-6. Si des déclencheurs sont identifiés aujourd'hui, donne des conseils spécifiques
-7. Utilise ses motivations personnelles pour l'encourager
+5. Termine par un message motivant lié à l'objectif personnel
+6. Si des déclencheurs sont identifiés, donne des conseils spécifiques
+7. Utilise les motivations personnelles pour encourager
 
 Réponds en français, de manière humaine et personnalisée. Maximum 200 mots.`
 
@@ -153,10 +144,10 @@ Réponds en français, de manière humaine et personnalisée. Maximum 200 mots.`
       )
     }
 
-    const data = await response.json()
+    const data_response = await response.json()
     console.log('Google AI Response received successfully')
     
-    const aiResponse = data.candidates?.[0]?.content?.parts?.[0]?.text || 'Désolé, je ne peux pas générer de conseil pour le moment.'
+    const aiResponse = data_response.candidates?.[0]?.content?.parts?.[0]?.text || 'Désolé, je ne peux pas générer de conseil pour le moment.'
 
     return new Response(
       JSON.stringify({ advice: aiResponse }),
