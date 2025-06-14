@@ -5,6 +5,7 @@ import { useAuth } from '@/hooks/useAuth';
 
 interface UserProfile {
   id: string;
+  username?: string;
   age?: number;
   weight_kg?: number;
   height_cm?: number;
