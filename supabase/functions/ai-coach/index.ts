@@ -34,9 +34,11 @@ serve(async (req) => {
     if (!GOOGLE_AI_API_KEY) {
       console.error('Google AI API key not configured')
       return new Response(
-        JSON.stringify({ error: 'Google AI API key not configured' }),
+        JSON.stringify({ 
+          advice: 'Je ne peux pas générer de conseil pour le moment car la clé API n\'est pas configurée. Veuillez contacter l\'administrateur.'
+        }),
         {
-          status: 500,
+          status: 200,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         },
       )
@@ -96,8 +98,8 @@ Réponds en français, de manière humaine et personnalisée. Maximum 200 mots.`
 
     console.log('Calling Google AI with prompt length:', systemPrompt.length)
 
-    // Utiliser le nouveau modèle Gemini 1.5 Flash qui est actuellement supporté
-    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${GOOGLE_AI_API_KEY}`, {
+    // Utiliser l'API Gemini 1.5 Flash avec la bonne configuration
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GOOGLE_AI_API_KEY}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -113,17 +115,36 @@ Réponds en français, de manière humaine et personnalisée. Maximum 200 mots.`
           topK: 40,
           topP: 0.95,
           maxOutputTokens: 300,
-        }
+        },
+        safetySettings: [
+          {
+            category: "HARM_CATEGORY_HARASSMENT",
+            threshold: "BLOCK_NONE"
+          },
+          {
+            category: "HARM_CATEGORY_HATE_SPEECH", 
+            threshold: "BLOCK_NONE"
+          },
+          {
+            category: "HARM_CATEGORY_SEXUALLY_EXPLICIT",
+            threshold: "BLOCK_NONE"
+          },
+          {
+            category: "HARM_CATEGORY_DANGEROUS_CONTENT",
+            threshold: "BLOCK_NONE"
+          }
+        ]
       })
     })
+
+    console.log('Google AI Response status:', response.status)
 
     if (!response.ok) {
       const errorText = await response.text()
       console.error('Google AI API Error:', response.status, errorText)
       return new Response(
         JSON.stringify({ 
-          error: `Google AI API error: ${response.status}`,
-          advice: 'Désolé, je ne peux pas générer de conseil pour le moment. Veuillez réessayer dans quelques instants.'
+          advice: 'Désolé, je rencontre des difficultés techniques pour générer ton conseil personnalisé. Réessaie dans quelques instants ou contacte le support si le problème persiste.'
         }),
         {
           status: 200, // On retourne 200 pour éviter les erreurs côté client
@@ -133,7 +154,7 @@ Réponds en français, de manière humaine et personnalisée. Maximum 200 mots.`
     }
 
     const data = await response.json()
-    console.log('Google AI Response received')
+    console.log('Google AI Response received successfully')
     
     const aiResponse = data.candidates?.[0]?.content?.parts?.[0]?.text || 'Désolé, je ne peux pas générer de conseil pour le moment.'
 
@@ -148,8 +169,7 @@ Réponds en français, de manière humaine et personnalisée. Maximum 200 mots.`
     console.error('Error in ai-coach function:', error)
     return new Response(
       JSON.stringify({ 
-        error: 'Erreur lors de la génération du conseil',
-        advice: 'Désolé, une erreur technique est survenue. Veuillez réessayer.'
+        advice: 'Désolé, une erreur technique est survenue. Veuillez réessayer dans quelques instants.'
       }),
       {
         status: 200, // On retourne 200 avec un message d'erreur dans advice
