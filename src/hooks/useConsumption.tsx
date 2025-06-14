@@ -8,39 +8,33 @@ export const useConsumption = () => {
   const [consumptions, setConsumptions] = useState<Consumption[]>([]);
 
   useEffect(() => {
-    const storedData = localStorage.getItem(STORAGE_KEY);
-    if (storedData) {
-      setConsumptions(JSON.parse(storedData));
+    const stored = localStorage.getItem(STORAGE_KEY);
+    if (stored) {
+      try {
+        setConsumptions(JSON.parse(stored));
+      } catch (error) {
+        console.error('Error parsing stored consumption data:', error);
+      }
     }
   }, []);
 
   const saveToStorage = (data: Consumption[]) => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    setConsumptions(data);
   };
 
   const addConsumption = (consumption: Omit<Consumption, 'id'>) => {
-    const newConsumption: Consumption = {
+    const newConsumption = {
       ...consumption,
       id: Date.now().toString(),
     };
-    const updatedConsumptions = [newConsumption, ...consumptions];
-    setConsumptions(updatedConsumptions);
-    saveToStorage(updatedConsumptions);
+    const updated = [newConsumption, ...consumptions];
+    saveToStorage(updated);
   };
 
   const deleteConsumption = (id: string) => {
-    const updatedConsumptions = consumptions.filter(c => c.id !== id);
-    setConsumptions(updatedConsumptions);
-    saveToStorage(updatedConsumptions);
-  };
-
-  // Fonction pour extraire le poids numérique d'une chaîne de quantité
-  const extractWeight = (quantity: string, type: 'herbe' | 'hash' | 'cigarette'): number => {
-    if (type === 'cigarette') return 0; // Les cigarettes ne comptent pas en poids
-    
-    // Extraire les nombres de la chaîne (ex: "0.5g" -> 0.5, "2g" -> 2)
-    const match = quantity.match(/(\d+\.?\d*)/);
-    return match ? parseFloat(match[1]) : 0;
+    const updated = consumptions.filter(c => c.id !== id);
+    saveToStorage(updated);
   };
 
   const getStats = (): ConsumptionStats => {
@@ -63,29 +57,22 @@ export const useConsumption = () => {
       return acc;
     }, {} as { [key: string]: number });
 
-    // Calculate weight totals for week and month
-    const weekWeight = weekData.reduce((acc, c) => {
-      const weight = extractWeight(c.quantity, c.type);
-      acc[c.type] = (acc[c.type] || 0) + weight;
-      return acc;
-    }, {} as { [key: string]: number });
-
-    const monthWeight = monthData.reduce((acc, c) => {
-      const weight = extractWeight(c.quantity, c.type);
-      acc[c.type] = (acc[c.type] || 0) + weight;
-      return acc;
-    }, {} as { [key: string]: number });
-
-    // Calculate daily averages over 30 days
+    // Calculate daily averages
     const dailyAverage = Object.keys(monthTotal).reduce((acc, type) => {
-      acc[type] = Math.round((monthTotal[type] / 30) * 10) / 10;
+      acc[type] = Math.round((monthTotal[type] / 30) * 100) / 100;
       return acc;
     }, {} as { [key: string]: number });
 
-    const dailyWeightAverage = Object.keys(monthWeight).reduce((acc, type) => {
-      acc[type] = Math.round((monthWeight[type] / 30) * 100) / 100;
-      return acc;
-    }, {} as { [key: string]: number });
+    // Calculate weight stats (placeholder implementation)
+    const weekWeight = {} as { [key: string]: number };
+    const monthWeight = {} as { [key: string]: number };
+    const dailyWeightAverage = {} as { [key: string]: number };
+    
+    // Calculate cost stats (placeholder implementation)  
+    const weekCost = {} as { [key: string]: number };
+    const monthCost = {} as { [key: string]: number };
+    const totalCost = 0;
+    const dailyCostAverage = {} as { [key: string]: number };
 
     // Chart data (last 7 days)
     const recentData = [];
@@ -103,8 +90,11 @@ export const useConsumption = () => {
         herbe: dayData.filter(c => c.type === 'herbe').length,
         hash: dayData.filter(c => c.type === 'hash').length,
         cigarette: dayData.filter(c => c.type === 'cigarette').length,
-        herbeWeight: dayData.filter(c => c.type === 'herbe').reduce((sum, c) => sum + extractWeight(c.quantity, c.type), 0),
-        hashWeight: dayData.filter(c => c.type === 'hash').reduce((sum, c) => sum + extractWeight(c.quantity, c.type), 0),
+        herbeWeight: 0,
+        hashWeight: 0,
+        herbeCost: 0,
+        hashCost: 0,
+        cigaretteCost: 0,
       });
     }
 
@@ -115,7 +105,11 @@ export const useConsumption = () => {
       recentData,
       weekWeight,
       monthWeight,
-      dailyWeightAverage
+      dailyWeightAverage,
+      weekCost,
+      monthCost,
+      totalCost,
+      dailyCostAverage
     };
   };
 

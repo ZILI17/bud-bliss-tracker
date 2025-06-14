@@ -15,6 +15,7 @@ export type Database = {
           date: string
           id: string
           note: string | null
+          price: number | null
           quantity: string
           type: string
           updated_at: string
@@ -25,6 +26,7 @@ export type Database = {
           date: string
           id?: string
           note?: string | null
+          price?: number | null
           quantity: string
           type: string
           updated_at?: string
@@ -35,6 +37,7 @@ export type Database = {
           date?: string
           id?: string
           note?: string | null
+          price?: number | null
           quantity?: string
           type?: string
           updated_at?: string
@@ -48,8 +51,11 @@ export type Database = {
           age: number | null
           consumption_goal: string | null
           created_at: string
+          default_cigarette_price: number | null
           default_cigarette_quantity: number | null
+          default_hash_price: number | null
           default_hash_quantity: number | null
+          default_herbe_price: number | null
           default_herbe_quantity: number | null
           height_cm: number | null
           id: string
@@ -66,8 +72,11 @@ export type Database = {
           age?: number | null
           consumption_goal?: string | null
           created_at?: string
+          default_cigarette_price?: number | null
           default_cigarette_quantity?: number | null
+          default_hash_price?: number | null
           default_hash_quantity?: number | null
+          default_herbe_price?: number | null
           default_herbe_quantity?: number | null
           height_cm?: number | null
           id: string
@@ -84,8 +93,11 @@ export type Database = {
           age?: number | null
           consumption_goal?: string | null
           created_at?: string
+          default_cigarette_price?: number | null
           default_cigarette_quantity?: number | null
+          default_hash_price?: number | null
           default_hash_quantity?: number | null
+          default_herbe_price?: number | null
           default_herbe_quantity?: number | null
           height_cm?: number | null
           id?: string

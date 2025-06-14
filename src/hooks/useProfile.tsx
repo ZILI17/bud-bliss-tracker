@@ -15,6 +15,9 @@ interface UserProfile {
   default_herbe_quantity?: number;
   default_hash_quantity?: number;
   default_cigarette_quantity?: number;
+  default_herbe_price?: number;
+  default_hash_price?: number;
+  default_cigarette_price?: number;
   profile_completed?: boolean;
   onboarding_completed?: boolean;
 }
@@ -53,6 +56,29 @@ export const useProfile = () => {
     }
   };
 
+  const updateProfile = async (updates: Partial<UserProfile>) => {
+    if (!user) return;
+
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .upsert({
+          id: user.id,
+          ...updates,
+          updated_at: new Date().toISOString(),
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      setProfile(data);
+    } catch (error) {
+      console.error('Error updating profile:', error);
+      throw error;
+    }
+  };
+
   const needsOnboarding = () => {
     return !profile?.onboarding_completed;
   };
@@ -77,6 +103,7 @@ export const useProfile = () => {
   return {
     profile,
     loading,
+    updateProfile,
     needsOnboarding,
     getDefaultQuantity,
     refetch: fetchProfile

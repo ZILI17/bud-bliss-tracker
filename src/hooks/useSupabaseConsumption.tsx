@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
@@ -35,6 +36,7 @@ export const useSupabaseConsumption = () => {
             quantity: consumption.quantity,
             date: consumption.date,
             note: consumption.note,
+            price: consumption.price,
           }));
 
           const { error } = await supabase
@@ -75,6 +77,7 @@ export const useSupabaseConsumption = () => {
         quantity: item.quantity,
         date: item.date,
         note: item.note || undefined,
+        price: item.price || undefined,
       }));
 
       setConsumptions(formattedData);
@@ -199,6 +202,12 @@ export const useSupabaseConsumption = () => {
       return acc;
     }, {} as { [key: string]: number });
 
+    // Calculate daily averages
+    const dailyAverage = Object.keys(monthTotal).reduce((acc, type) => {
+      acc[type] = Math.round((monthTotal[type] / 30) * 100) / 100;
+      return acc;
+    }, {} as { [key: string]: number });
+
     // Calculate weight totals for week and month
     const weekWeight = weekData.reduce((acc, c) => {
       const weight = extractWeight(c.quantity, c.type);
@@ -209,6 +218,12 @@ export const useSupabaseConsumption = () => {
     const monthWeight = monthData.reduce((acc, c) => {
       const weight = extractWeight(c.quantity, c.type);
       acc[c.type] = (acc[c.type] || 0) + weight;
+      return acc;
+    }, {} as { [key: string]: number });
+
+    // Calculate daily weight averages
+    const dailyWeightAverage = Object.keys(monthWeight).reduce((acc, type) => {
+      acc[type] = Math.round((monthWeight[type] / 30) * 100) / 100;
       return acc;
     }, {} as { [key: string]: number });
 
