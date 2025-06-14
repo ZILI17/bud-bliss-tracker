@@ -96,7 +96,8 @@ Réponds en français, de manière humaine et personnalisée. Maximum 200 mots.`
 
     console.log('Calling Google AI with prompt length:', systemPrompt.length)
 
-    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${GOOGLE_AI_API_KEY}`, {
+    // Utiliser le nouveau modèle Gemini 1.5 Flash qui est actuellement supporté
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${GOOGLE_AI_API_KEY}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
