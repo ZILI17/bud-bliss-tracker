@@ -16,6 +16,17 @@ serve(async (req) => {
     const { context } = await req.json()
     console.log('Received context:', JSON.stringify(context, null, 2))
 
+    if (!context) {
+      console.error('No context provided')
+      return new Response(
+        JSON.stringify({ error: 'Context is required' }),
+        {
+          status: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        },
+      )
+    }
+
     const GOOGLE_AI_API_KEY = Deno.env.get('GOOGLE_AI_API_KEY')
     if (!GOOGLE_AI_API_KEY) {
       throw new Error('Google AI API key not configured')
@@ -33,6 +44,7 @@ OBJECTIF DÉFINI :
 - Objectif principal: ${context.consumption_goal || 'non défini'}
 - Description personnelle: "${context.goal_description || 'non précisée'}"
 - Délai souhaité: ${context.goal_timeline || 'non précisé'}
+- Motivation: "${context.goal_motivation || 'non précisée'}"
 
 DÉCLENCHEURS IDENTIFIÉS :
 - Moments à risque: ${context.triggers_moments?.join(', ') || 'non identifiés'}

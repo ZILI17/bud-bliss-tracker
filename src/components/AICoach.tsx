@@ -1,14 +1,15 @@
+
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import { useProfile } from '@/hooks/useProfile';
 import { useSupabaseConsumption } from '@/hooks/useSupabaseConsumption';
 import { Sparkles } from 'lucide-react';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { supabase } from '@/integrations/supabase/client';
 
 const AICoach = () => {
   const [advice, setAdvice] = useState('');
@@ -24,76 +25,82 @@ const AICoach = () => {
   });
 
   useEffect(() => {
-    generateAIAdvice();
-  }, [profile]);
-
-  const weeklyTotal = Object.values(getStats().weekTotal).reduce((a, b) => a + b, 0);
-  const monthlyTotal = Object.values(getStats().monthTotal).reduce((a, b) => a + b, 0);
-  const dailyAverage = Object.values(getStats().dailyAverage).reduce((a, b) => a + b, 0);
+    if (profile?.id) {
+      generateAIAdvice();
+    }
+  }, [profile?.id]);
 
   const generateAIAdvice = async () => {
+    if (!profile) {
+      console.log('No profile available for AI advice');
+      return;
+    }
+
     setLoading(true);
     try {
-      // Construire le contexte enrichi avec toutes les nouvelles données
+      const stats = getStats();
+      const weeklyTotal = Object.values(stats.weekTotal).reduce((a, b) => a + b, 0);
+      const monthlyTotal = Object.values(stats.monthTotal).reduce((a, b) => a + b, 0);
+      const dailyAverage = Object.values(stats.dailyAverage).reduce((a, b) => a + b, 0);
+
+      // Construire le contexte enrichi avec toutes les données
       const enrichedContext = {
         // Données personnelles de base
-        age: profile?.age,
-        weight_kg: profile?.weight_kg,
-        height_cm: profile?.height_cm,
-        activity_level: profile?.activity_level,
+        age: profile.age || null,
+        weight_kg: profile.weight_kg || null,
+        height_cm: profile.height_cm || null,
+        activity_level: profile.activity_level || null,
         
         // Objectif détaillé
-        consumption_goal: profile?.consumption_goal,
-        goal_timeline: profile?.goal_timeline,
-        goal_description: profile?.goal_description,
+        consumption_goal: profile.consumption_goal || null,
+        goal_timeline: profile.goal_timeline || null,
+        goal_description: profile.goal_description || null,
+        goal_motivation: profile.goal_motivation || null,
         
         // Déclencheurs identifiés
-        triggers_moments: profile?.triggers_moments || [],
-        triggers_specific: profile?.triggers_specific || [],
+        triggers_moments: profile.triggers_moments || [],
+        triggers_specific: profile.triggers_specific || [],
         
         // Motivations
-        motivation_reasons: profile?.motivation_reasons || [],
-        motivation_personal: profile?.motivation_personal,
+        motivation_reasons: profile.motivation_reasons || [],
+        motivation_personal: profile.motivation_personal || null,
         
         // Soutien et préférences
-        support_entourage: profile?.support_entourage,
-        support_preference: profile?.support_preference,
+        support_entourage: profile.support_entourage || null,
+        support_preference: profile.support_preference || null,
         
         // Activités alternatives
-        alternative_activities: profile?.alternative_activities || [],
-        wants_daily_suggestions: profile?.wants_daily_suggestions,
+        alternative_activities: profile.alternative_activities || [],
+        wants_daily_suggestions: profile.wants_daily_suggestions || true,
         
         // Données du jour (saisies par l'utilisateur)
-        daily_mood: formData.mood,
-        daily_difficulty: formData.difficulty,
-        daily_notes: formData.notes,
+        daily_mood: formData.mood || null,
+        daily_difficulty: formData.difficulty || null,
+        daily_notes: formData.notes || null,
         
         // Statistiques de consommation
         stats: {
-          daily_average: dailyAverage,
-          weekly_total: weeklyTotal,
-          monthly_total: monthlyTotal,
+          daily_average: dailyAverage || 0,
+          weekly_total: weeklyTotal || 0,
+          monthly_total: monthlyTotal || 0,
           recent_trend: monthlyTotal > weeklyTotal * 4 ? 'hausse' : 
                        monthlyTotal < weeklyTotal * 4 ? 'baisse' : 'stable'
         }
       };
 
-      const response = await fetch('/api/ai-coach', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ context: enrichedContext }),
+      console.log('Sending context to AI:', enrichedContext);
+
+      const { data, error } = await supabase.functions.invoke('ai-coach', {
+        body: { context: enrichedContext }
       });
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        console.error('AI Coach API Error:', errorData);
-        throw new Error(errorData.error || 'Failed to generate AI advice');
+      if (error) {
+        console.error('AI Coach Function Error:', error);
+        throw error;
       }
 
-      const data = await response.json();
-      setAdvice(data.advice);
+      console.log('AI Coach Response:', data);
+      setAdvice(data?.advice || "Désolé, je ne peux pas générer de conseil pour le moment.");
     } catch (error: any) {
       console.error('Error generating AI advice:', error);
       toast({
@@ -101,11 +108,20 @@ const AICoach = () => {
         description: "Impossible de générer un conseil personnalisé pour le moment.",
         variant: "destructive",
       });
-      setAdvice("Désolé, je ne peux pas générer de conseil pour le moment.");
+      setAdvice("Désolé, je ne peux pas générer de conseil pour le moment. Veuillez réessayer.");
     } finally {
       setLoading(false);
     }
   };
+
+  if (!profile) {
+    return (
+      <div className="text-center p-8">
+        <div className="animate-spin rounded-full h-8 w-8 border-2 border-primary border-t-transparent mx-auto mb-4"></div>
+        <p>Chargement de votre profil...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -113,58 +129,82 @@ const AICoach = () => {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Sparkles className="w-5 h-5" />
-            Ton IA Coach
+            Ton IA Coach Personnalisé
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <Label htmlFor="mood">Humeur du jour</Label>
+              <Label htmlFor="mood">Comment te sens-tu aujourd'hui ?</Label>
               <Select onValueChange={(value) => setFormData(prev => ({ ...prev, mood: value }))}>
                 <SelectTrigger className="glass-button">
-                  <SelectValue placeholder="Comment te sens-tu ?" />
+                  <SelectValue placeholder="Ton humeur du jour" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="positive">Positive</SelectItem>
+                  <SelectItem value="motivé">Motivé</SelectItem>
                   <SelectItem value="neutre">Neutre</SelectItem>
-                  <SelectItem value="difficile">Difficile</SelectItem>
+                  <SelectItem value="stressé">Stressé</SelectItem>
+                  <SelectItem value="fatigué">Fatigué</SelectItem>
+                  <SelectItem value="anxieux">Anxieux</SelectItem>
+                  <SelectItem value="positif">Positif</SelectItem>
                 </SelectContent>
               </Select>
             </div>
             <div>
-              <Label htmlFor="difficulty">Difficulté</Label>
+              <Label htmlFor="difficulty">Niveau de difficulté ressenti</Label>
               <Select onValueChange={(value) => setFormData(prev => ({ ...prev, difficulty: value }))}>
                 <SelectTrigger className="glass-button">
-                  <SelectValue placeholder="Niveau de difficulté" />
+                  <SelectValue placeholder="Ta difficulté du jour" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="faible">Faible</SelectItem>
-                  <SelectItem value="moderee">Modérée</SelectItem>
-                  <SelectItem value="elevee">Élevée</SelectItem>
+                  <SelectItem value="aucune">Aucune difficulté</SelectItem>
+                  <SelectItem value="légère">Légère envie</SelectItem>
+                  <SelectItem value="modérée">Envie modérée</SelectItem>
+                  <SelectItem value="forte">Envie forte</SelectItem>
+                  <SelectItem value="très-forte">Très difficile</SelectItem>
                 </SelectContent>
               </Select>
             </div>
           </div>
           <div>
-            <Label htmlFor="notes">Notes (optionnel)</Label>
+            <Label htmlFor="notes">Notes personnelles (optionnel)</Label>
             <Textarea
               id="notes"
-              placeholder="Ajoute des détails sur ta journée"
+              placeholder="Raconte ta journée, tes ressentis, ce qui s'est passé..."
               value={formData.notes}
               onChange={(e) => setFormData(prev => ({ ...prev, notes: e.target.value }))}
               className="glass-button"
+              rows={3}
             />
           </div>
           <Button onClick={generateAIAdvice} disabled={loading} className="w-full glass-button neon-glow">
-            ✨ Obtenir un conseil personnalisé
+            {loading ? (
+              <>
+                <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent mr-2"></div>
+                Analyse en cours...
+              </>
+            ) : (
+              <>
+                <Sparkles className="w-4 h-4 mr-2" />
+                Obtenir un conseil personnalisé
+              </>
+            )}
           </Button>
         </CardContent>
       </Card>
 
       {advice && (
-        <Card className="glass-card">
+        <Card className="glass-card border-l-4 border-l-primary">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-primary">
+              <Sparkles className="w-5 h-5" />
+              Conseil de ton IA Coach
+            </CardTitle>
+          </CardHeader>
           <CardContent>
-            <p className="text-sm">{advice}</p>
+            <div className="prose prose-sm max-w-none">
+              <p className="text-sm leading-relaxed whitespace-pre-wrap">{advice}</p>
+            </div>
           </CardContent>
         </Card>
       )}
