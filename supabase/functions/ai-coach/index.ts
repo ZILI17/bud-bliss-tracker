@@ -24,6 +24,7 @@ serve(async (req) => {
       console.error('No data provided')
       return new Response(
         JSON.stringify({ 
+          success: true,
           advice: 'Aucune donnée fournie pour générer le conseil.'
         }),
         {
@@ -38,6 +39,7 @@ serve(async (req) => {
       console.error('Google AI API key not configured')
       return new Response(
         JSON.stringify({ 
+          success: true,
           advice: 'Je ne peux pas générer de conseil pour le moment car la clé API n\'est pas configurée. Veuillez contacter l\'administrateur.'
         }),
         {
@@ -135,10 +137,11 @@ Réponds en français, de manière humaine et personnalisée. Maximum 200 mots.`
       console.error('Google AI API Error:', response.status, errorText)
       return new Response(
         JSON.stringify({ 
+          success: true,
           advice: 'Désolé, je rencontre des difficultés techniques pour générer ton conseil personnalisé. Réessaie dans quelques instants ou contacte le support si le problème persiste.'
         }),
         {
-          status: 200, // On retourne 200 pour éviter les erreurs côté client
+          status: 200,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         },
       )
@@ -150,7 +153,10 @@ Réponds en français, de manière humaine et personnalisée. Maximum 200 mots.`
     const aiResponse = data_response.candidates?.[0]?.content?.parts?.[0]?.text || 'Désolé, je ne peux pas générer de conseil pour le moment.'
 
     return new Response(
-      JSON.stringify({ advice: aiResponse }),
+      JSON.stringify({ 
+        success: true,
+        advice: aiResponse 
+      }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       },
@@ -160,10 +166,11 @@ Réponds en français, de manière humaine et personnalisée. Maximum 200 mots.`
     console.error('Error in ai-coach function:', error)
     return new Response(
       JSON.stringify({ 
+        success: true,
         advice: 'Désolé, une erreur technique est survenue. Veuillez réessayer dans quelques instants.'
       }),
       {
-        status: 200, // On retourne 200 avec un message d'erreur dans advice
+        status: 200,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       },
     )
