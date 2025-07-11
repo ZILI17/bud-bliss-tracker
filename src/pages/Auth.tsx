@@ -35,8 +35,9 @@ const Auth = () => {
         if (isSignUp) {
           toast({
             title: "✨ Compte créé avec succès",
-            description: "Vérifiez vos emails pour confirmer votre compte.",
+            description: "Compte créé ! Vous pouvez maintenant vous connecter.",
           });
+          setIsSignUp(false); // Basculer vers la connexion
         } else {
           toast({
             title: "⚡ Connexion réussie",
