@@ -26,16 +26,23 @@ const Auth = () => {
         : await signIn(email, password);
 
       if (error) {
+        let errorMessage = error.message;
+        if (error.message.includes('Email not confirmed')) {
+          errorMessage = "Veuillez vérifier votre email et cliquer sur le lien de confirmation avant de vous connecter.";
+        } else if (error.message.includes('Invalid login credentials')) {
+          errorMessage = "Email ou mot de passe incorrect. Vérifiez vos identifiants.";
+        }
+        
         toast({
           title: "Erreur d'authentification",
-          description: error.message,
+          description: errorMessage,
           variant: "destructive",
         });
       } else {
         if (isSignUp) {
           toast({
             title: "✨ Compte créé avec succès",
-            description: "Compte créé ! Vous pouvez maintenant vous connecter.",
+            description: "Vérifiez votre email et cliquez sur le lien de confirmation pour activer votre compte.",
           });
           setIsSignUp(false); // Basculer vers la connexion
         } else {
