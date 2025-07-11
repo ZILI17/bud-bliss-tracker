@@ -29,6 +29,8 @@ const Auth = () => {
         let errorMessage = error.message;
         if (error.message.includes('Invalid login credentials')) {
           errorMessage = "Email ou mot de passe incorrect. Vérifiez vos identifiants.";
+        } else if (error.message.includes('email_address_invalid') || error.message.includes('Email address') && error.message.includes('invalid')) {
+          errorMessage = "Adresse email invalide. Utilisez un email avec un domaine valide (ex: gmail.com, outlook.com).";
         }
         
         toast({
