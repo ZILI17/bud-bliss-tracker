@@ -9,6 +9,7 @@ import { useNavigate } from 'react-router-dom';
 import AddConsumptionForm from '@/components/AddConsumptionForm';
 import ConsumptionHistory from '@/components/ConsumptionHistory';
 import Stats from '@/components/Stats';
+import ImprovedAnalytics from '@/components/ImprovedAnalytics';
 import DailyAIRecommendation from '@/components/DailyAIRecommendation';
 import AICoach from '@/components/AICoach';
 import { useToast } from '@/hooks/use-toast';
@@ -253,28 +254,11 @@ const Index = () => {
                   </p>
                 </div>
 
-                {/* Quick stats preview */}
+                {/* Analytics intégrées */}
                 {consumptions.length > 0 && (
                   <div className="glass-card p-8 rounded-2xl">
-                    <h3 className="text-xl font-bold mb-6 text-center hologram-text">Aperçu du Système</h3>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
-                      <div className="glass-card p-4 rounded-xl">
-                        <p className="text-3xl font-bold text-emerald-400 mb-2">
-                          {Object.values(stats.weekTotal).reduce((a, b) => a + b, 0)}
-                        </p>
-                        <p className="text-sm text-muted-foreground">Cette semaine</p>
-                      </div>
-                      <div className="glass-card p-4 rounded-xl">
-                        <p className="text-3xl font-bold text-blue-400 mb-2">
-                          {Object.values(stats.monthTotal).reduce((a, b) => a + b, 0)}
-                        </p>
-                        <p className="text-sm text-muted-foreground">Ce mois</p>
-                      </div>
-                      <div className="glass-card p-4 rounded-xl">
-                        <p className="text-3xl font-bold text-purple-400 mb-2">{consumptions.length}</p>
-                        <p className="text-sm text-muted-foreground">Total enregistré</p>
-                      </div>
-                    </div>
+                    <h3 className="text-xl font-bold mb-6 text-center hologram-text">Aperçu Analytics</h3>
+                    <ImprovedAnalytics stats={stats} compact={true} />
                   </div>
                 )}
               </div>
@@ -294,7 +278,7 @@ const Index = () => {
 
           <TabsContent value="stats">
             <div className="glass-card p-8 rounded-2xl">
-              <Stats stats={stats} />
+              <ImprovedAnalytics stats={stats} />
             </div>
           </TabsContent>
 
