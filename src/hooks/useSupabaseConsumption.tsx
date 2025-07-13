@@ -182,6 +182,12 @@ export const useSupabaseConsumption = () => {
     }
   };
 
+  // Fonction pour extraire la quantité réelle de cigarettes
+  const extractCigaretteCount = (quantity: string): number => {
+    const match = quantity.match(/(\d+)/);
+    return match ? parseInt(match[1]) : 1;
+  };
+
   const getStats = (): ConsumptionStats => {
     const now = new Date();
     const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
@@ -191,20 +197,34 @@ export const useSupabaseConsumption = () => {
     const weekData = consumptions.filter(c => new Date(c.date) >= weekAgo);
     const monthData = consumptions.filter(c => new Date(c.date) >= monthAgo);
 
-    // Count by type for each period
+    // Calculate actual quantities (not just entry count)
     const weekTotal = weekData.reduce((acc, c) => {
-      acc[c.type] = (acc[c.type] || 0) + 1;
+      if (c.type === 'cigarette') {
+        acc[c.type] = (acc[c.type] || 0) + extractCigaretteCount(c.quantity);
+      } else {
+        acc[c.type] = (acc[c.type] || 0) + 1;
+      }
       return acc;
     }, {} as { [key: string]: number });
 
     const monthTotal = monthData.reduce((acc, c) => {
-      acc[c.type] = (acc[c.type] || 0) + 1;
+      if (c.type === 'cigarette') {
+        acc[c.type] = (acc[c.type] || 0) + extractCigaretteCount(c.quantity);
+      } else {
+        acc[c.type] = (acc[c.type] || 0) + 1;
+      }
       return acc;
     }, {} as { [key: string]: number });
 
-    // Calculate daily averages
+    // Calculate actual days with data for accurate averages
+    const uniqueDaysWithData = new Set(
+      monthData.map(c => c.date.split('T')[0])
+    ).size;
+    const daysToUseForAverage = Math.max(uniqueDaysWithData, 1); // Éviter division par 0
+
+    // Calculate daily averages based on actual days with data
     const dailyAverage = Object.keys(monthTotal).reduce((acc, type) => {
-      acc[type] = Math.round((monthTotal[type] / 30) * 100) / 100;
+      acc[type] = Math.round((monthTotal[type] / daysToUseForAverage) * 100) / 100;
       return acc;
     }, {} as { [key: string]: number });
 
@@ -221,9 +241,9 @@ export const useSupabaseConsumption = () => {
       return acc;
     }, {} as { [key: string]: number });
 
-    // Calculate daily weight averages
+    // Calculate daily weight averages based on actual days with data
     const dailyWeightAverage = Object.keys(monthWeight).reduce((acc, type) => {
-      acc[type] = Math.round((monthWeight[type] / 30) * 100) / 100;
+      acc[type] = Math.round((monthWeight[type] / daysToUseForAverage) * 100) / 100;
       return acc;
     }, {} as { [key: string]: number });
 
@@ -243,13 +263,13 @@ export const useSupabaseConsumption = () => {
     // Calculate total cost of all recorded consumptions
     const totalCost = consumptions.reduce((sum, c) => sum + calculatePrice(c), 0);
 
-    // Calculate daily cost averages over 30 days
+    // Calculate daily cost averages based on actual days with data
     const dailyCostAverage = Object.keys(monthCost).reduce((acc, type) => {
-      acc[type] = Math.round((monthCost[type] / 30) * 100) / 100;
+      acc[type] = Math.round((monthCost[type] / daysToUseForAverage) * 100) / 100;
       return acc;
     }, {} as { [key: string]: number });
 
-    // Chart data (last 7 days) with cost information
+    // Chart data (last 7 days) with accurate cigarette counts
     const recentData = [];
     for (let i = 6; i >= 0; i--) {
       const date = new Date(now.getTime() - i * 24 * 60 * 60 * 1000);
@@ -260,11 +280,16 @@ export const useSupabaseConsumption = () => {
       const dayName = dayNames[date.getDay()];
       const dayMonth = date.getDate();
       
+      // Calculate accurate cigarette count for the day
+      const cigaretteCount = dayData
+        .filter(c => c.type === 'cigarette')
+        .reduce((sum, c) => sum + extractCigaretteCount(c.quantity), 0);
+      
       recentData.push({
         date: `${dayName} ${dayMonth}`,
         herbe: dayData.filter(c => c.type === 'herbe').length,
         hash: dayData.filter(c => c.type === 'hash').length,
-        cigarette: dayData.filter(c => c.type === 'cigarette').length,
+        cigarette: cigaretteCount,
         herbeWeight: dayData.filter(c => c.type === 'herbe').reduce((sum, c) => sum + extractWeight(c.quantity, c.type), 0),
         hashWeight: dayData.filter(c => c.type === 'hash').reduce((sum, c) => sum + extractWeight(c.quantity, c.type), 0),
         herbeCost: dayData.filter(c => c.type === 'herbe').reduce((sum, c) => sum + calculatePrice(c), 0),

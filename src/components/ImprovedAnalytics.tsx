@@ -205,44 +205,87 @@ const ImprovedAnalytics: React.FC<ImprovedAnalyticsProps> = ({ stats, compact = 
                 <TrendingUp className="w-5 h-5" />
                 Tendance (7 jours)
               </CardTitle>
+              <p className="text-sm text-muted-foreground">
+                Vue d'ensemble des consommations quotidiennes
+              </p>
             </CardHeader>
             <CardContent>
-              <div className="h-48">
+              <div className="h-56">
                 <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={stats.recentData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
-                    <CartesianGrid strokeDasharray="3 3" className="opacity-30" />
+                  <AreaChart 
+                    data={stats.recentData} 
+                    margin={{ top: 10, right: 30, left: 20, bottom: 40 }}
+                  >
+                    <defs>
+                      <linearGradient id="cannabisGradient" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor={typeColors.herbe} stopOpacity={0.8}/>
+                        <stop offset="95%" stopColor={typeColors.herbe} stopOpacity={0.1}/>
+                      </linearGradient>
+                      <linearGradient id="hashGradient" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor={typeColors.hash} stopOpacity={0.8}/>
+                        <stop offset="95%" stopColor={typeColors.hash} stopOpacity={0.1}/>
+                      </linearGradient>
+                      <linearGradient id="cigaretteGradient" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor={typeColors.cigarette} stopOpacity={0.8}/>
+                        <stop offset="95%" stopColor={typeColors.cigarette} stopOpacity={0.1}/>
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" className="opacity-20" />
                     <XAxis 
                       dataKey="date" 
                       className="text-xs"
-                      tick={{ fontSize: 12 }}
+                      tick={{ fontSize: 10 }}
+                      angle={-45}
+                      textAnchor="end"
+                      height={50}
                     />
-                    <YAxis className="text-xs" tick={{ fontSize: 12 }} />
-                    <Tooltip content={<CustomTooltip />} />
+                    <YAxis className="text-xs" tick={{ fontSize: 10 }} />
+                    <Tooltip 
+                      content={({ active, payload, label }) => {
+                        if (active && payload && payload.length) {
+                          const total = payload.reduce((sum, entry) => sum + (Number(entry.value) || 0), 0);
+                          return (
+                            <div className="bg-background/95 backdrop-blur border rounded-lg p-3 shadow-lg">
+                              <p className="font-semibold text-foreground mb-2">{label}</p>
+                              {payload.map((entry, index) => (
+                                <p key={index} style={{ color: entry.color }}>
+                                  {entry.name}: {entry.value}
+                                </p>
+                              ))}
+                              <div className="border-t pt-1 mt-1">
+                                <p className="font-medium">Total: {total}</p>
+                              </div>
+                            </div>
+                          );
+                        }
+                        return null;
+                      }}
+                    />
                     <Area 
                       type="monotone" 
                       dataKey="herbe" 
-                      stackId="1" 
+                      stackId="cannabis" 
                       stroke={typeColors.herbe} 
-                      fill={typeColors.herbe}
-                      fillOpacity={0.6}
+                      fill="url(#cannabisGradient)"
+                      strokeWidth={2}
                       name="Cannabis"
                     />
                     <Area 
                       type="monotone" 
                       dataKey="hash" 
-                      stackId="1" 
+                      stackId="cannabis" 
                       stroke={typeColors.hash} 
-                      fill={typeColors.hash}
-                      fillOpacity={0.6}
+                      fill="url(#hashGradient)"
+                      strokeWidth={2}
                       name="Hash"
                     />
                     <Area 
                       type="monotone" 
                       dataKey="cigarette" 
-                      stackId="2" 
+                      stackId="cigarette" 
                       stroke={typeColors.cigarette} 
-                      fill={typeColors.cigarette}
-                      fillOpacity={0.6}
+                      fill="url(#cigaretteGradient)"
+                      strokeWidth={2}
                       name="Cigarettes"
                     />
                   </AreaChart>
@@ -434,49 +477,80 @@ const ImprovedAnalytics: React.FC<ImprovedAnalyticsProps> = ({ stats, compact = 
           </Card>
         )}
 
-        {/* Évolution temporelle */}
+        {/* Évolution temporelle - Graphique combiné */}
         {stats.recentData.length > 0 && (
           <Card className="glass-card">
             <CardHeader>
               <CardTitle className="text-lg flex items-center gap-2">
                 <TrendingUp className="w-5 h-5" />
-                Évolution (7 derniers jours)
+                Évolution détaillée (7 jours)
               </CardTitle>
+              <p className="text-sm text-muted-foreground">
+                Quantités exactes avec tendances
+              </p>
             </CardHeader>
             <CardContent>
-              <div className="h-64">
+              <div className="h-80">
                 <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={stats.recentData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+                  <BarChart 
+                    data={stats.recentData} 
+                    margin={{ top: 20, right: 30, left: 20, bottom: 60 }}
+                  >
                     <CartesianGrid strokeDasharray="3 3" className="opacity-30" />
-                    <XAxis dataKey="date" className="text-xs" />
-                    <YAxis className="text-xs" />
-                    <Tooltip content={<CustomTooltip />} />
+                    <XAxis 
+                      dataKey="date" 
+                      className="text-xs"
+                      tick={{ fontSize: 11 }}
+                      angle={-45}
+                      textAnchor="end"
+                      height={60}
+                    />
+                    <YAxis 
+                      className="text-xs" 
+                      tick={{ fontSize: 11 }}
+                      label={{ value: 'Quantité', angle: -90, position: 'insideLeft' }}
+                    />
+                    <Tooltip 
+                      content={({ active, payload, label }) => {
+                        if (active && payload && payload.length) {
+                          const total = payload.reduce((sum, entry) => sum + (Number(entry.value) || 0), 0);
+                          return (
+                            <div className="bg-background/95 backdrop-blur border rounded-lg p-3 shadow-lg">
+                              <p className="font-semibold text-foreground mb-2">{label}</p>
+                              {payload.map((entry, index) => (
+                                <p key={index} style={{ color: entry.color }}>
+                                  {entry.name}: {entry.value} {entry.dataKey === 'cigarette' ? 'cigarettes' : 'fois'}
+                                </p>
+                              ))}
+                              <div className="border-t pt-1 mt-1">
+                                <p className="font-medium">Total: {total}</p>
+                              </div>
+                            </div>
+                          );
+                        }
+                        return null;
+                      }}
+                    />
                     <Legend />
-                    <Line 
-                      type="monotone" 
+                    <Bar 
                       dataKey="herbe" 
-                      stroke={typeColors.herbe} 
-                      strokeWidth={3}
+                      fill={typeColors.herbe} 
                       name="Cannabis"
-                      dot={{ fill: typeColors.herbe, strokeWidth: 2, r: 4 }}
+                      radius={[2, 2, 0, 0]}
                     />
-                    <Line 
-                      type="monotone" 
+                    <Bar 
                       dataKey="hash" 
-                      stroke={typeColors.hash} 
-                      strokeWidth={3}
+                      fill={typeColors.hash} 
                       name="Hash"
-                      dot={{ fill: typeColors.hash, strokeWidth: 2, r: 4 }}
+                      radius={[2, 2, 0, 0]}
                     />
-                    <Line 
-                      type="monotone" 
+                    <Bar 
                       dataKey="cigarette" 
-                      stroke={typeColors.cigarette} 
-                      strokeWidth={3}
+                      fill={typeColors.cigarette} 
                       name="Cigarettes"
-                      dot={{ fill: typeColors.cigarette, strokeWidth: 2, r: 4 }}
+                      radius={[2, 2, 0, 0]}
                     />
-                  </LineChart>
+                  </BarChart>
                 </ResponsiveContainer>
               </div>
             </CardContent>
