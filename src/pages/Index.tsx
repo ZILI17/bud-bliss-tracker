@@ -127,7 +127,7 @@ const Index = () => {
 
         {/* Header with logout and settings */}
         <div className="text-center py-8 md:py-12 relative">
-          <div className="absolute top-0 right-0 flex flex-col sm:flex-row gap-1 sm:gap-2">
+          <div className="absolute top-0 right-0 flex flex-col gap-1 w-20 sm:w-auto sm:flex-row sm:gap-2">
             <AddHistoricalDataButton />
             <Button
               onClick={() => navigate('/settings')}

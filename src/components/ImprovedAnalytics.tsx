@@ -153,20 +153,20 @@ const ImprovedAnalytics: React.FC<ImprovedAnalyticsProps> = ({ stats, compact = 
             </CardHeader>
             <CardContent className="space-y-2 sm:space-y-4">
               <div className="flex justify-between items-center">
-                <span className="text-xs sm:text-sm">Moyenne/jour :</span>
-                <span className="font-bold text-emerald-600 text-sm sm:text-base">
+                <span className="text-xs">Moyenne/jour :</span>
+                <span className="font-bold text-emerald-600 text-xs sm:text-sm">
                   {dailyAverages.cannabis.count}/j
                 </span>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-xs sm:text-sm">Poids/jour :</span>
-                <span className="font-bold text-emerald-600 text-sm sm:text-base">
+                <span className="text-xs">Poids/jour :</span>
+                <span className="font-bold text-emerald-600 text-xs sm:text-sm">
                   {dailyAverages.cannabis.weight}g/j
                 </span>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-xs sm:text-sm">Coût/jour :</span>
-                <span className="font-bold text-emerald-600 text-sm sm:text-base">
+                <span className="text-xs">Coût/jour :</span>
+                <span className="font-bold text-emerald-600 text-xs sm:text-sm">
                   {dailyAverages.cannabis.cost.toFixed(2)}€/j
                 </span>
               </div>
@@ -183,14 +183,14 @@ const ImprovedAnalytics: React.FC<ImprovedAnalyticsProps> = ({ stats, compact = 
             </CardHeader>
             <CardContent className="space-y-2 sm:space-y-4">
               <div className="flex justify-between items-center">
-                <span className="text-xs sm:text-sm">Moyenne/jour :</span>
-                <span className="font-bold text-slate-600 text-sm sm:text-base">
+                <span className="text-xs">Moyenne/jour :</span>
+                <span className="font-bold text-slate-600 text-xs sm:text-sm">
                   {dailyAverages.cigarette.count}/j
                 </span>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-xs sm:text-sm">Coût/jour :</span>
-                <span className="font-bold text-slate-600 text-sm sm:text-base">
+                <span className="text-xs">Coût/jour :</span>
+                <span className="font-bold text-slate-600 text-xs sm:text-sm">
                   {dailyAverages.cigarette.cost.toFixed(2)}€/j
                 </span>
               </div>
