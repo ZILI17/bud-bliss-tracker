@@ -69,12 +69,12 @@ const AddConsumptionForm: React.FC<AddConsumptionFormProps> = ({ onAdd, onCancel
   ];
 
   return (
-    <Card className="w-full max-w-md mx-auto mt-6">
-      <CardContent className="p-6">
+    <Card className="w-full max-w-lg mx-auto">
+      <CardContent className="p-4 sm:p-6">
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <Label className="text-sm font-medium">Type de produit</Label>
-            <div className="grid grid-cols-1 gap-2 mt-2">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 mt-2">
               {typeOptions.map((option) => {
                 const IconComponent = option.icon;
                 return (
@@ -82,14 +82,14 @@ const AddConsumptionForm: React.FC<AddConsumptionFormProps> = ({ onAdd, onCancel
                     key={option.value}
                     type="button"
                     onClick={() => setType(option.value)}
-                    className={`flex items-center gap-3 p-3 rounded-lg border-2 transition-all ${
+                    className={`flex flex-col sm:flex-row items-center gap-2 sm:gap-3 p-3 rounded-lg border-2 transition-all ${
                       type === option.value
                         ? option.color
                         : 'bg-white border-gray-200 text-gray-600 hover:border-gray-300'
                     }`}
                   >
-                    <IconComponent size={20} />
-                    <span className="font-medium">{option.label}</span>
+                    <IconComponent size={18} className="sm:w-5 sm:h-5" />
+                    <span className="font-medium text-sm sm:text-base">{option.label}</span>
                   </button>
                 );
               })}
@@ -159,11 +159,11 @@ const AddConsumptionForm: React.FC<AddConsumptionFormProps> = ({ onAdd, onCancel
             />
           </div>
 
-          <div className="flex gap-3 pt-4">
-            <Button type="button" variant="outline" onClick={onCancel} className="flex-1">
+          <div className="flex flex-col sm:flex-row gap-3 pt-4">
+            <Button type="button" variant="outline" onClick={onCancel} className="flex-1 order-2 sm:order-1">
               Annuler
             </Button>
-            <Button type="submit" className="flex-1 bg-green-600 hover:bg-green-700">
+            <Button type="submit" className="flex-1 bg-green-600 hover:bg-green-700 order-1 sm:order-2">
               Valider
             </Button>
           </div>

@@ -58,28 +58,30 @@ const ConsumptionHistory: React.FC<ConsumptionHistoryProps> = ({ consumptions, o
 
   return (
     <Card>
-      <CardHeader>
-        <CardTitle className="text-lg">Historique ({consumptions.length})</CardTitle>
+      <CardHeader className="pb-3 sm:pb-4">
+        <CardTitle className="text-base sm:text-lg">Historique ({consumptions.length})</CardTitle>
       </CardHeader>
-      <CardContent className="space-y-3">
+      <CardContent className="space-y-2 sm:space-y-3">
         {consumptions.map((consumption) => (
           <div
             key={consumption.id}
-            className="flex items-start justify-between p-3 rounded-lg border bg-card hover:bg-accent/50 transition-colors"
+            className="flex items-start justify-between p-2 sm:p-3 rounded-lg border bg-card hover:bg-accent/50 transition-colors"
           >
-            <div className="flex items-start gap-3 flex-1">
-              {getIcon(consumption.type)}
+            <div className="flex items-start gap-2 sm:gap-3 flex-1 min-w-0">
+              <div className="flex-shrink-0 mt-0.5">
+                {getIcon(consumption.type)}
+              </div>
               <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 mb-1">
+                <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 mb-1">
                   <span className="font-medium text-sm">{getTypeLabel(consumption.type)}</span>
-                  <span className="text-sm text-muted-foreground">•</span>
-                  <span className="text-sm font-medium">{consumption.quantity}</span>
+                  <span className="hidden sm:inline text-sm text-muted-foreground">•</span>
+                  <span className="text-sm font-medium text-muted-foreground sm:text-foreground">{consumption.quantity}</span>
                 </div>
                 <p className="text-xs text-muted-foreground mb-1">
                   {formatDate(consumption.date)}
                 </p>
                 {consumption.note && (
-                  <p className="text-sm text-muted-foreground italic">
+                  <p className="text-xs sm:text-sm text-muted-foreground italic break-words">
                     "{consumption.note}"
                   </p>
                 )}
@@ -89,9 +91,9 @@ const ConsumptionHistory: React.FC<ConsumptionHistoryProps> = ({ consumptions, o
               variant="ghost"
               size="sm"
               onClick={() => onDelete(consumption.id)}
-              className="text-red-500 hover:text-red-700 hover:bg-red-50"
+              className="text-red-500 hover:text-red-700 hover:bg-red-50 flex-shrink-0 p-1 sm:p-2"
             >
-              <Trash2 className="w-4 h-4" />
+              <Trash2 className="w-3 h-3 sm:w-4 sm:h-4" />
             </Button>
           </div>
         ))}

@@ -126,26 +126,26 @@ const Index = () => {
         </div>
 
         {/* Header with logout and settings */}
-        <div className="text-center py-12 relative">
-          <div className="absolute top-0 right-0 flex gap-2">
+        <div className="text-center py-8 md:py-12 relative">
+          <div className="absolute top-0 right-0 flex flex-col sm:flex-row gap-1 sm:gap-2">
             <AddHistoricalDataButton />
             <Button
               onClick={() => navigate('/settings')}
               variant="ghost"
               size="sm"
-              className="glass-button neon-glow"
+              className="glass-button neon-glow text-xs sm:text-sm"
             >
-              <SettingsIcon className="w-4 h-4 mr-2" />
-              Paramètres
+              <SettingsIcon className="w-3 h-3 sm:w-4 sm:h-4 sm:mr-2" />
+              <span className="hidden sm:inline">Paramètres</span>
             </Button>
             <Button
               onClick={handleSignOut}
               variant="ghost"
               size="sm"
-              className="glass-button neon-glow"
+              className="glass-button neon-glow text-xs sm:text-sm"
             >
-              <LogOut className="w-4 h-4 mr-2" />
-              Déconnexion
+              <LogOut className="w-3 h-3 sm:w-4 sm:h-4 sm:mr-2" />
+              <span className="hidden sm:inline">Déconnexion</span>
             </Button>
           </div>
           
@@ -153,66 +153,66 @@ const Index = () => {
             <div className="pulse-ring"></div>
             <Shield className="w-16 h-16 mx-auto mb-4 text-primary relative z-10" />
           </div>
-          <h1 className="text-5xl font-bold mb-4 hologram-text">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 hologram-text">
             Agent Quit Pro
           </h1>
-          <p className="text-xl text-muted-foreground mb-2">
+          <p className="text-lg sm:text-xl text-muted-foreground mb-2">
             Intelligence artificielle de suivi personnel
           </p>
-          <p className="text-sm text-primary/80 flex items-center justify-center gap-2">
-            <Sparkles className="w-4 h-4" />
-            Bienvenue {user?.email?.split('@')[0]} - Vos données sont sécurisées
-            <Sparkles className="w-4 h-4" />
+          <p className="text-xs sm:text-sm text-primary/80 flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2">
+            <Sparkles className="w-3 h-3 sm:w-4 sm:h-4" />
+            <span className="text-center">Bienvenue {user?.email?.split('@')[0]} - Vos données sont sécurisées</span>
+            <Sparkles className="w-3 h-3 sm:w-4 sm:h-4" />
           </p>
         </div>
 
         {/* Main Content */}
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-8">
-          <TabsList className="grid w-full grid-cols-4 glass-card p-2 h-14">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6 md:space-y-8">
+          <TabsList className="grid w-full grid-cols-4 glass-card p-1 sm:p-2 h-12 sm:h-14">
             <TabsTrigger 
               value="home" 
-              className="flex items-center gap-2 h-10 glass-button neon-glow"
+              className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 h-10 glass-button neon-glow text-xs sm:text-sm"
             >
-              <Plus className="w-4 h-4" />
-              Mission
+              <Plus className="w-3 h-3 sm:w-4 sm:h-4" />
+              <span className="hidden xs:inline">Mission</span>
             </TabsTrigger>
             <TabsTrigger 
               value="coach" 
-              className="flex items-center gap-2 h-10 glass-button neon-glow"
+              className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 h-10 glass-button neon-glow text-xs sm:text-sm"
             >
-              <Sparkles className="w-4 h-4" />
-              Coach IA
+              <Sparkles className="w-3 h-3 sm:w-4 sm:h-4" />
+              <span className="hidden xs:inline">Coach</span>
             </TabsTrigger>
             <TabsTrigger 
               value="stats" 
-              className="flex items-center gap-2 h-10 glass-button neon-glow"
+              className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 h-10 glass-button neon-glow text-xs sm:text-sm"
             >
-              <BarChart3 className="w-4 h-4" />
-              Analytics
+              <BarChart3 className="w-3 h-3 sm:w-4 sm:h-4" />
+              <span className="hidden xs:inline">Stats</span>
             </TabsTrigger>
             <TabsTrigger 
               value="history" 
-              className="flex items-center gap-2 h-10 glass-button neon-glow"
+              className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 h-10 glass-button neon-glow text-xs sm:text-sm"
             >
-              <History className="w-4 h-4" />
-              Archives
+              <History className="w-3 h-3 sm:w-4 sm:h-4" />
+              <span className="hidden xs:inline">Archives</span>
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="home" className="space-y-8">
+          <TabsContent value="home" className="space-y-6 md:space-y-8">
             {/* Recommandation IA du jour */}
             <DailyAIRecommendation />
 
             {!showForm ? (
-              <div className="text-center space-y-8">
+              <div className="text-center space-y-6 md:space-y-8">
                 {/* Quick add buttons */}
-                <div className="glass-card p-8 rounded-2xl">
-                  <div className="flex items-center justify-center gap-2 mb-6">
-                    <Zap className="w-6 h-6 text-primary" />
-                    <h2 className="text-2xl font-bold">Enregistrement Rapide</h2>
-                    <Zap className="w-6 h-6 text-primary" />
+                <div className="glass-card p-4 sm:p-6 md:p-8 rounded-2xl">
+                  <div className="flex items-center justify-center gap-2 mb-4 sm:mb-6">
+                    <Zap className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
+                    <h2 className="text-lg sm:text-xl md:text-2xl font-bold">Enregistrement Rapide</h2>
+                    <Zap className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
                   </div>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-3xl mx-auto">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 max-w-4xl mx-auto">
                     {quickAddButtons.map((button) => {
                       const IconComponent = button.icon;
                       return (
@@ -220,50 +220,51 @@ const Index = () => {
                           <Button
                             onClick={() => handleQuickAdd(button.type)}
                             size="lg"
-                            className={`h-32 w-full flex flex-col gap-3 bg-gradient-to-br ${button.gradient} text-white shadow-2xl ${button.shadow} hover:shadow-xl transition-all duration-300 hover:scale-105 border-0 neon-glow relative overflow-hidden`}
+                            className={`h-24 sm:h-28 md:h-32 w-full flex flex-col gap-2 sm:gap-3 bg-gradient-to-br ${button.gradient} text-white shadow-2xl ${button.shadow} hover:shadow-xl transition-all duration-300 hover:scale-105 border-0 neon-glow relative overflow-hidden`}
                           >
                             <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                            <IconComponent className="w-8 h-8 relative z-10" />
+                            <IconComponent className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 relative z-10" />
                             <div className="text-center relative z-10">
-                              <div className="font-bold text-lg">{button.label}</div>
-                              <div className="text-sm opacity-90">{button.quantity}</div>
+                              <div className="font-bold text-sm sm:text-base md:text-lg">{button.label}</div>
+                              <div className="text-xs sm:text-sm opacity-90">{button.quantity}</div>
                             </div>
                           </Button>
                         </div>
                       );
                     })}
                   </div>
-                  <p className="text-sm text-muted-foreground mt-6 opacity-75">
+                  <p className="text-xs sm:text-sm text-muted-foreground mt-4 sm:mt-6 opacity-75">
                     ⚡ Quantités personnalisées - Modifiables dans les paramètres
                   </p>
                 </div>
 
                 {/* Custom entry button */}
-                <div className="glass-card p-6 rounded-2xl border-dashed border-2 border-primary/30">
+                <div className="glass-card p-4 sm:p-6 rounded-2xl border-dashed border-2 border-primary/30">
                   <Button
                     onClick={() => setShowForm(true)}
                     variant="outline"
                     size="lg"
-                    className="h-16 px-8 glass-button neon-glow text-lg"
+                    className="h-12 sm:h-14 md:h-16 px-4 sm:px-6 md:px-8 glass-button neon-glow text-sm sm:text-base md:text-lg w-full sm:w-auto"
                   >
-                    <Plus className="w-6 h-6 mr-3" />
-                    Enregistrement Personnalisé
+                    <Plus className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 mr-2 sm:mr-3" />
+                    <span className="hidden sm:inline">Enregistrement Personnalisé</span>
+                    <span className="sm:hidden">Personnalisé</span>
                   </Button>
-                  <p className="text-sm text-muted-foreground mt-3 opacity-75">
+                  <p className="text-xs sm:text-sm text-muted-foreground mt-2 sm:mt-3 opacity-75">
                     🎯 Pour personnaliser la quantité ou ajouter des détails
                   </p>
                 </div>
 
                 {/* Analytics intégrées */}
                 {consumptions.length > 0 && (
-                  <div className="glass-card p-8 rounded-2xl">
-                    <h3 className="text-xl font-bold mb-6 text-center hologram-text">Aperçu Analytics</h3>
+                  <div className="glass-card p-4 sm:p-6 md:p-8 rounded-2xl">
+                    <h3 className="text-lg sm:text-xl font-bold mb-4 sm:mb-6 text-center hologram-text">Aperçu Analytics</h3>
                     <ImprovedAnalytics stats={stats} compact={true} />
                   </div>
                 )}
               </div>
             ) : (
-              <div className="glass-card p-8 rounded-2xl">
+              <div className="glass-card p-4 sm:p-6 md:p-8 rounded-2xl">
                 <AddConsumptionForm
                   onAdd={handleAddConsumption}
                   onCancel={() => setShowForm(false)}
@@ -277,13 +278,13 @@ const Index = () => {
           </TabsContent>
 
           <TabsContent value="stats">
-            <div className="glass-card p-8 rounded-2xl">
+            <div className="glass-card p-4 sm:p-6 md:p-8 rounded-2xl">
               <ImprovedAnalytics stats={stats} />
             </div>
           </TabsContent>
 
           <TabsContent value="history">
-            <div className="glass-card p-8 rounded-2xl">
+            <div className="glass-card p-4 sm:p-6 md:p-8 rounded-2xl">
               <ConsumptionHistory
                 consumptions={consumptions}
                 onDelete={handleDeleteConsumption}

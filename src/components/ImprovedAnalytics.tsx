@@ -139,33 +139,34 @@ const ImprovedAnalytics: React.FC<ImprovedAnalyticsProps> = ({ stats, compact = 
 
   if (compact) {
     return (
-      <div className="space-y-6">
+      <div className="space-y-4 sm:space-y-6">
         {/* Aperçu séparé */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
           {/* Cannabis/Hash */}
           <Card className="glass-card border-emerald-200">
-            <CardHeader className="pb-4">
-              <CardTitle className="text-lg flex items-center gap-2 text-emerald-700">
-                <Cannabis className="w-5 h-5" />
-                Cannabis & Hash
+            <CardHeader className="pb-2 sm:pb-4">
+              <CardTitle className="text-base sm:text-lg flex items-center gap-2 text-emerald-700">
+                <Cannabis className="w-4 h-4 sm:w-5 sm:h-5" />
+                <span className="hidden sm:inline">Cannabis & Hash</span>
+                <span className="sm:hidden">Cannabis</span>
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-2 sm:space-y-4">
               <div className="flex justify-between items-center">
-                <span className="text-sm">Moyenne/jour :</span>
-                <span className="font-bold text-emerald-600">
+                <span className="text-xs sm:text-sm">Moyenne/jour :</span>
+                <span className="font-bold text-emerald-600 text-sm sm:text-base">
                   {dailyAverages.cannabis.count}/j
                 </span>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-sm">Poids/jour :</span>
-                <span className="font-bold text-emerald-600">
+                <span className="text-xs sm:text-sm">Poids/jour :</span>
+                <span className="font-bold text-emerald-600 text-sm sm:text-base">
                   {dailyAverages.cannabis.weight}g/j
                 </span>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-sm">Coût/jour :</span>
-                <span className="font-bold text-emerald-600">
+                <span className="text-xs sm:text-sm">Coût/jour :</span>
+                <span className="font-bold text-emerald-600 text-sm sm:text-base">
                   {dailyAverages.cannabis.cost.toFixed(2)}€/j
                 </span>
               </div>
@@ -174,22 +175,22 @@ const ImprovedAnalytics: React.FC<ImprovedAnalyticsProps> = ({ stats, compact = 
 
           {/* Cigarettes */}
           <Card className="glass-card border-slate-200">
-            <CardHeader className="pb-4">
-              <CardTitle className="text-lg flex items-center gap-2 text-slate-700">
-                <Cigarette className="w-5 h-5" />
+            <CardHeader className="pb-2 sm:pb-4">
+              <CardTitle className="text-base sm:text-lg flex items-center gap-2 text-slate-700">
+                <Cigarette className="w-4 h-4 sm:w-5 sm:h-5" />
                 Cigarettes
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-2 sm:space-y-4">
               <div className="flex justify-between items-center">
-                <span className="text-sm">Moyenne/jour :</span>
-                <span className="font-bold text-slate-600">
+                <span className="text-xs sm:text-sm">Moyenne/jour :</span>
+                <span className="font-bold text-slate-600 text-sm sm:text-base">
                   {dailyAverages.cigarette.count}/j
                 </span>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-sm">Coût/jour :</span>
-                <span className="font-bold text-slate-600">
+                <span className="text-xs sm:text-sm">Coût/jour :</span>
+                <span className="font-bold text-slate-600 text-sm sm:text-base">
                   {dailyAverages.cigarette.cost.toFixed(2)}€/j
                 </span>
               </div>
@@ -200,21 +201,22 @@ const ImprovedAnalytics: React.FC<ImprovedAnalyticsProps> = ({ stats, compact = 
         {/* Graphique simplifié des 7 derniers jours */}
         {stats.recentData.length > 0 && (
           <Card className="glass-card">
-            <CardHeader>
-              <CardTitle className="text-lg flex items-center gap-2">
-                <TrendingUp className="w-5 h-5" />
-                Tendance (7 jours)
+            <CardHeader className="pb-2 sm:pb-4">
+              <CardTitle className="text-base sm:text-lg flex items-center gap-2">
+                <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5" />
+                <span className="hidden sm:inline">Tendance (7 jours)</span>
+                <span className="sm:hidden">Tendance</span>
               </CardTitle>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-xs sm:text-sm text-muted-foreground">
                 Vue d'ensemble des consommations quotidiennes
               </p>
             </CardHeader>
             <CardContent>
-              <div className="h-56">
+              <div className="h-48 sm:h-56">
                 <ResponsiveContainer width="100%" height="100%">
                   <AreaChart 
                     data={stats.recentData} 
-                    margin={{ top: 10, right: 30, left: 20, bottom: 40 }}
+                    margin={{ top: 10, right: 10, left: 0, bottom: 50 }}
                   >
                     <defs>
                       <linearGradient id="cannabisGradient" x1="0" y1="0" x2="0" y2="1">
@@ -234,12 +236,13 @@ const ImprovedAnalytics: React.FC<ImprovedAnalyticsProps> = ({ stats, compact = 
                     <XAxis 
                       dataKey="date" 
                       className="text-xs"
-                      tick={{ fontSize: 10 }}
+                      tick={{ fontSize: 8 }}
                       angle={-45}
                       textAnchor="end"
-                      height={50}
+                      height={60}
+                      interval="preserveStartEnd"
                     />
-                    <YAxis className="text-xs" tick={{ fontSize: 10 }} />
+                    <YAxis className="text-xs" tick={{ fontSize: 8 }} width={30} />
                     <Tooltip 
                       content={({ active, payload, label }) => {
                         if (active && payload && payload.length) {
@@ -299,33 +302,33 @@ const ImprovedAnalytics: React.FC<ImprovedAnalyticsProps> = ({ stats, compact = 
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6 sm:space-y-8">
       {/* En-tête avec titre */}
       <div className="text-center">
-        <h2 className="text-3xl font-bold hologram-text flex items-center justify-center gap-3">
-          <BarChart3 className="w-8 h-8" />
-          Analytics Avancées
-          <BarChart3 className="w-8 h-8" />
+        <h2 className="text-xl sm:text-2xl md:text-3xl font-bold hologram-text flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-3">
+          <BarChart3 className="w-6 h-6 sm:w-8 sm:h-8" />
+          <span>Analytics Avancées</span>
+          <BarChart3 className="w-6 h-6 sm:w-8 sm:h-8" />
         </h2>
-        <p className="text-muted-foreground mt-2">
+        <p className="text-sm sm:text-base text-muted-foreground mt-2">
           Analyse détaillée de vos habitudes avec filtres intelligents
         </p>
       </div>
 
       {/* Filtres */}
       <Card className="glass-card">
-        <CardHeader>
-          <CardTitle className="text-lg flex items-center gap-2">
-            <Filter className="w-5 h-5" />
+        <CardHeader className="pb-2 sm:pb-4">
+          <CardTitle className="text-base sm:text-lg flex items-center gap-2">
+            <Filter className="w-4 h-4 sm:w-5 sm:h-5" />
             Filtres d'analyse
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="flex flex-wrap gap-4">
-            <div className="flex items-center gap-2">
-              <Calendar className="w-4 h-4" />
+          <div className="flex flex-col sm:flex-row flex-wrap gap-2 sm:gap-4">
+            <div className="flex items-center gap-2 w-full sm:w-auto">
+              <Calendar className="w-3 h-3 sm:w-4 sm:h-4" />
               <Select value={period} onValueChange={(value: Period) => setPeriod(value)}>
-                <SelectTrigger className="w-32">
+                <SelectTrigger className="w-full sm:w-32">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -335,10 +338,10 @@ const ImprovedAnalytics: React.FC<ImprovedAnalyticsProps> = ({ stats, compact = 
               </Select>
             </div>
 
-            <div className="flex items-center gap-2">
-              <BarChart3 className="w-4 h-4" />
+            <div className="flex items-center gap-2 w-full sm:w-auto">
+              <BarChart3 className="w-3 h-3 sm:w-4 sm:h-4" />
               <Select value={dataType} onValueChange={(value: DataType) => setDataType(value)}>
-                <SelectTrigger className="w-32">
+                <SelectTrigger className="w-full sm:w-32">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -353,7 +356,7 @@ const ImprovedAnalytics: React.FC<ImprovedAnalyticsProps> = ({ stats, compact = 
       </Card>
 
       {/* Aperçu séparé Cannabis vs Cigarettes */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
         {/* Cannabis/Hash */}
         <Card className="glass-card border-emerald-200">
           <CardHeader>
