@@ -42,7 +42,7 @@ const Auth = () => {
         if (isSignUp) {
           toast({
             title: "✨ Compte créé avec succès",
-            description: "Vous pouvez maintenant vous connecter.",
+            description: "Vérifiez votre email pour confirmer votre compte avant de vous connecter.",
           });
           setIsSignUp(false); // Basculer vers la connexion
         } else {
