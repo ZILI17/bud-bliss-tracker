@@ -16,6 +16,52 @@ const Auth = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
 
+  // Fonction pour créer et connecter un utilisateur de test
+  const createTestUser = async () => {
+    setLoading(true);
+    try {
+      // Créer l'utilisateur test avec un email unique
+      const testEmail = `test-${Date.now()}@admin.com`;
+      const testPassword = 'admin123';
+      
+      const { error: signUpError } = await signUp(testEmail, testPassword);
+      
+      if (!signUpError) {
+        // Attendre un peu puis se connecter
+        setTimeout(async () => {
+          const { error: signInError } = await signIn(testEmail, testPassword);
+          if (!signInError) {
+            toast({
+              title: "✅ Utilisateur test créé et connecté",
+              description: `Email: ${testEmail} / Mot de passe: ${testPassword}`,
+            });
+            navigate('/');
+          } else {
+            toast({
+              title: "Erreur de connexion",
+              description: "Utilisateur créé mais connexion échouée",
+              variant: "destructive",
+            });
+          }
+        }, 1000);
+      } else {
+        toast({
+          title: "Erreur de création",
+          description: signUpError.message,
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Erreur",
+        description: "Impossible de créer l'utilisateur test",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -143,7 +189,7 @@ const Auth = () => {
             </Button>
           </form>
 
-          <div className="mt-6 text-center">
+          <div className="mt-6 text-center space-y-4">
             <button
               type="button"
               onClick={() => setIsSignUp(!isSignUp)}
@@ -154,6 +200,21 @@ const Auth = () => {
                 : "Pas de compte ? Créer un compte"
               }
             </button>
+            
+            <div className="border-t pt-4">
+              <Button
+                type="button"
+                onClick={createTestUser}
+                variant="outline"
+                disabled={loading}
+                className="w-full"
+              >
+                🧪 Créer un utilisateur de test
+              </Button>
+              <p className="text-xs text-muted-foreground mt-2">
+                Créer et se connecter automatiquement avec un compte de test
+              </p>
+            </div>
           </div>
         </div>
       </div>
