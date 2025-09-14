@@ -7,10 +7,10 @@ export type Json =
   | Json[]
 
 export type Database = {
-  // Allows to automatically instanciate createClient with right options
+  // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
-    PostgrestVersion: "12.2.3 (519615d)"
+    PostgrestVersion: "13.0.5"
   }
   public: {
     Tables: {
@@ -201,10 +201,10 @@ export type Database = {
       calculate_personalized_recommendations: {
         Args: { user_uuid: string }
         Returns: {
-          rec_type: string
-          rec_title: string
           rec_content: string
           rec_priority: number
+          rec_title: string
+          rec_type: string
         }[]
       }
     }
