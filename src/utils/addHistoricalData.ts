@@ -74,10 +74,9 @@ export const addHistoricalConsumptionData = async (userId: string) => {
 export const addTwoWeeksConsumptionData = async (userId: string) => {
   const historicalData = [];
   
-  // 2 semaines récentes (derniers 14 jours)
-  const endDate = new Date();
-  const startDate = new Date();
-  startDate.setDate(endDate.getDate() - 13); // 14 jours au total
+  // 2 semaines récentes (14 jours) - du 2 au 15 septembre 2025
+  const endDate = new Date('2025-09-15');
+  const startDate = new Date('2025-09-02');
   
   for (let date = new Date(startDate); date <= endDate; date.setDate(date.getDate() + 1)) {
     const currentDate = new Date(date);
