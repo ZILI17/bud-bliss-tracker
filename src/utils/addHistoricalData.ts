@@ -70,3 +70,90 @@ export const addHistoricalConsumptionData = async (userId: string) => {
     return { success: false, error };
   }
 };
+
+export const addTwoWeeksConsumptionData = async (userId: string) => {
+  const historicalData = [];
+  
+  // 2 semaines récentes (derniers 14 jours)
+  const endDate = new Date();
+  const startDate = new Date();
+  startDate.setDate(endDate.getDate() - 13); // 14 jours au total
+  
+  for (let date = new Date(startDate); date <= endDate; date.setDate(date.getDate() + 1)) {
+    const currentDate = new Date(date);
+    
+    // 4 joints de cannabis (herbe) par jour
+    for (let i = 0; i < 4; i++) {
+      const hour = Math.floor(Math.random() * 24);
+      const minute = Math.floor(Math.random() * 60);
+      
+      const consumptionDate = new Date(currentDate);
+      consumptionDate.setHours(hour, minute, 0, 0);
+      
+      historicalData.push({
+        user_id: userId,
+        type: 'herbe',
+        quantity: '0.4g',
+        date: consumptionDate.toISOString(),
+        created_at: consumptionDate.toISOString(),
+        updated_at: consumptionDate.toISOString()
+      });
+    }
+    
+    // 3 joints de hash par jour
+    for (let i = 0; i < 3; i++) {
+      const hour = Math.floor(Math.random() * 24);
+      const minute = Math.floor(Math.random() * 60);
+      
+      const consumptionDate = new Date(currentDate);
+      consumptionDate.setHours(hour, minute, 0, 0);
+      
+      historicalData.push({
+        user_id: userId,
+        type: 'hash',
+        quantity: '0.3g',
+        date: consumptionDate.toISOString(),
+        created_at: consumptionDate.toISOString(),
+        updated_at: consumptionDate.toISOString()
+      });
+    }
+    
+    // 13 cigarettes par jour
+    for (let i = 0; i < 13; i++) {
+      const hour = Math.floor(Math.random() * 24);
+      const minute = Math.floor(Math.random() * 60);
+      
+      const consumptionDate = new Date(currentDate);
+      consumptionDate.setHours(hour, minute, 0, 0);
+      
+      historicalData.push({
+        user_id: userId,
+        type: 'cigarette',
+        quantity: '1 cig',
+        date: consumptionDate.toISOString(),
+        created_at: consumptionDate.toISOString(),
+        updated_at: consumptionDate.toISOString()
+      });
+    }
+  }
+  
+  // Trier par date pour un meilleur ordre
+  historicalData.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+  
+  try {
+    const { data, error } = await supabase
+      .from('consumptions')
+      .insert(historicalData);
+    
+    if (error) {
+      console.error('Erreur lors de l\'ajout des données historiques:', error);
+      return { success: false, error };
+    }
+    
+    console.log(`${historicalData.length} entrées de consommation ajoutées avec succès`);
+    return { success: true, count: historicalData.length };
+  } catch (error) {
+    console.error('Erreur:', error);
+    return { success: false, error };
+  }
+};
