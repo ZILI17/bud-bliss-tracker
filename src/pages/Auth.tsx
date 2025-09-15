@@ -16,28 +16,52 @@ const Auth = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
 
-  // Fonction pour se connecter directement avec l'utilisateur admin
-  const loginAsAdmin = async () => {
+  // Fonction pour créer et connecter automatiquement un compte admin
+  const createAdminAccount = async () => {
     setLoading(true);
     try {
-      const { error } = await signIn('admin@test.com', 'admin123');
-      if (!error) {
+      // Créer le compte admin
+      const { error: signUpError } = await signUp('admin@test.com', 'admin123');
+      
+      if (!signUpError) {
         toast({
-          title: "✅ Connexion réussie",
-          description: "Bienvenue dans Agent Quit Pro",
+          title: "✅ Compte admin créé",
+          description: "Vous pouvez maintenant vous connecter avec admin@test.com",
         });
-        navigate('/');
+        
+        // Pré-remplir les champs
+        setEmail('admin@test.com');
+        setPassword('admin123');
+        setIsSignUp(false);
+      } else if (signUpError.message.includes('already registered')) {
+        // L'utilisateur existe déjà, essayer de se connecter
+        const { error: signInError } = await signIn('admin@test.com', 'admin123');
+        if (!signInError) {
+          toast({
+            title: "✅ Connexion réussie",
+            description: "Bienvenue dans Agent Quit Pro",
+          });
+          navigate('/');
+        } else {
+          toast({
+            title: "Compte existant trouvé",
+            description: "Utilisez admin@test.com / admin123 pour vous connecter",
+          });
+          setEmail('admin@test.com');
+          setPassword('admin123');
+          setIsSignUp(false);
+        }
       } else {
         toast({
-          title: "Erreur de connexion",
-          description: error.message || "Impossible de se connecter",
+          title: "Erreur de création",
+          description: signUpError.message,
           variant: "destructive",
         });
       }
     } catch (error) {
       toast({
         title: "Erreur",
-        description: "Impossible de se connecter",
+        description: "Impossible de créer le compte admin",
         variant: "destructive",
       });
     } finally {
@@ -187,15 +211,15 @@ const Auth = () => {
             <div className="border-t pt-4">
               <Button
                 type="button"
-                onClick={loginAsAdmin}
+                onClick={createAdminAccount}
                 variant="outline"
                 disabled={loading}
                 className="w-full"
               >
-                🔑 Connexion Admin
+                🔑 Créer Compte Admin
               </Button>
               <p className="text-xs text-muted-foreground mt-2">
-                Email: admin@test.com / Mot de passe: admin123
+                Crée admin@test.com / admin123 et pré-remplit les champs
               </p>
             </div>
           </div>
