@@ -15,6 +15,7 @@ import AICoach from '@/components/AICoach';
 import { useToast } from '@/hooks/use-toast';
 import AddHistoricalDataButton from '@/components/AddHistoricalDataButton';
 import AddTwoWeeksDataButton from '@/components/AddTwoWeeksDataButton';
+import DeleteAllDataButton from '@/components/DeleteAllDataButton';
 
 const Index = () => {
   const [showForm, setShowForm] = useState(false);
@@ -131,6 +132,7 @@ const Index = () => {
           <div className="absolute top-0 right-0 flex flex-col gap-1 w-20 sm:w-auto sm:flex-row sm:gap-2">
             <AddHistoricalDataButton />
             <AddTwoWeeksDataButton />
+            <DeleteAllDataButton />
             <Button
               onClick={() => navigate('/settings')}
               variant="ghost"
