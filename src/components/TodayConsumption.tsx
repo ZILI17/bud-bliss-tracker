@@ -104,9 +104,10 @@ const TodayConsumption = ({ consumptions }: TodayConsumptionProps) => {
 
         {/* Détail par type */}
         <div className="grid grid-cols-3 gap-3">
-          {Object.entries(typeStats).map(([type, count]) => {
+          {Object.entries(todayStats).map(([type, count]) => {
             if (type === 'totalCost') return null;
             const config = typeIcons[type as keyof typeof typeIcons];
+            if (!config) return null;
             const Icon = config.icon;
             
             return (
@@ -118,7 +119,7 @@ const TodayConsumption = ({ consumptions }: TodayConsumptionProps) => {
                   </span>
                 </div>
                 <div className="text-lg font-bold">
-                  {count}
+                  {count as number}
                 </div>
               </div>
             );

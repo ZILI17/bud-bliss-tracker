@@ -55,6 +55,7 @@ export type Database = {
           activity_level: string | null
           age: number | null
           alternative_activities: string[] | null
+          cigarettes_per_joint: number | null
           consumption_goal: string | null
           created_at: string
           default_cigarette_price: number | null
@@ -74,6 +75,7 @@ export type Database = {
           motivation_reasons: string[] | null
           onboarding_completed: boolean | null
           profile_completed: boolean | null
+          smokes_with_cannabis: boolean | null
           support_entourage: boolean | null
           support_preference: string | null
           triggers_moments: string[] | null
@@ -87,6 +89,7 @@ export type Database = {
           activity_level?: string | null
           age?: number | null
           alternative_activities?: string[] | null
+          cigarettes_per_joint?: number | null
           consumption_goal?: string | null
           created_at?: string
           default_cigarette_price?: number | null
@@ -106,6 +109,7 @@ export type Database = {
           motivation_reasons?: string[] | null
           onboarding_completed?: boolean | null
           profile_completed?: boolean | null
+          smokes_with_cannabis?: boolean | null
           support_entourage?: boolean | null
           support_preference?: string | null
           triggers_moments?: string[] | null
@@ -119,6 +123,7 @@ export type Database = {
           activity_level?: string | null
           age?: number | null
           alternative_activities?: string[] | null
+          cigarettes_per_joint?: number | null
           consumption_goal?: string | null
           created_at?: string
           default_cigarette_price?: number | null
@@ -138,6 +143,7 @@ export type Database = {
           motivation_reasons?: string[] | null
           onboarding_completed?: boolean | null
           profile_completed?: boolean | null
+          smokes_with_cannabis?: boolean | null
           support_entourage?: boolean | null
           support_preference?: string | null
           triggers_moments?: string[] | null

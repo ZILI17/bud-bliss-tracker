@@ -30,6 +30,8 @@ interface UserProfile {
   default_herbe_price?: number;
   default_hash_price?: number;
   default_cigarette_price?: number;
+  smokes_with_cannabis?: boolean;
+  cigarettes_per_joint?: number;
   profile_completed?: boolean;
   onboarding_completed?: boolean;
 }

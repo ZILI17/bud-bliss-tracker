@@ -200,3 +200,62 @@
 ::-webkit-scrollbar-thumb:hover {
   background: linear-gradient(135deg, #2563eb, #7c3aed);
 }
+
+/* Amélioration responsive pour cartes et textes */
+@media (max-width: 640px) {
+  .glass-card {
+    padding: 1rem;
+    margin: 0.5rem 0;
+  }
+  
+  .glass-button {
+    font-size: 0.75rem;
+    padding: 0.5rem 0.75rem;
+  }
+  
+  /* Ensure text doesn't overflow */
+  h1, h2, h3, h4, h5, h6 {
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    hyphens: auto;
+    line-height: 1.2;
+  }
+  
+  /* Responsive table cells */
+  td, th {
+    padding: 0.25rem;
+    font-size: 0.75rem;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    max-width: 0;
+  }
+  
+  /* Responsive form inputs */
+  input, textarea, select {
+    font-size: 16px; /* Prevent zoom on iOS */
+    max-width: 100%;
+  }
+  
+  /* Responsive charts */
+  .recharts-wrapper {
+    font-size: 0.75rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .glass-card {
+    padding: 0.75rem;
+    border-radius: 12px;
+  }
+  
+  .glass-button {
+    font-size: 0.7rem;
+    padding: 0.375rem 0.5rem;
+  }
+  
+  /* Extra small screens text handling */
+  .hologram-text {
+    font-size: clamp(1.25rem, 5vw, 2rem);
+    line-height: 1.1;
+  }
+}

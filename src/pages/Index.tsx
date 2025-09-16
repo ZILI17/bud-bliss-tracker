@@ -9,7 +9,7 @@ import { useNavigate } from 'react-router-dom';
 import AddConsumptionForm from '@/components/AddConsumptionForm';
 import ConsumptionHistory from '@/components/ConsumptionHistory';
 import Stats from '@/components/Stats';
-import ImprovedAnalytics from '@/components/ImprovedAnalytics';
+import ImprovedStats from '@/components/ImprovedStats';
 import DailyAIRecommendation from '@/components/DailyAIRecommendation';
 import TodayConsumption from '@/components/TodayConsumption';
 import AICoach from '@/components/AICoach';
@@ -293,7 +293,7 @@ const Index = () => {
                 {consumptions.length > 0 && (
                   <div className="glass-card p-4 sm:p-6 md:p-8 rounded-2xl">
                     <h3 className="text-lg sm:text-xl font-bold mb-4 sm:mb-6 text-center hologram-text">Aperçu Analytics</h3>
-                    <ImprovedAnalytics stats={stats} compact={true} />
+                    <ImprovedStats stats={stats} compact={true} />
                   </div>
                 )}
               </div>
@@ -313,7 +313,7 @@ const Index = () => {
 
           <TabsContent value="stats">
             <div className="glass-card p-4 sm:p-6 md:p-8 rounded-2xl">
-              <ImprovedAnalytics stats={stats} />
+              <ImprovedStats stats={stats} />
             </div>
           </TabsContent>
 
