@@ -32,6 +32,8 @@ interface UserProfile {
   default_cigarette_price?: number;
   smokes_with_cannabis?: boolean;
   cigarettes_per_joint?: number;
+  smokes_with_cannabis?: boolean;
+  cigarettes_per_joint?: number;
   profile_completed?: boolean;
   onboarding_completed?: boolean;
 }

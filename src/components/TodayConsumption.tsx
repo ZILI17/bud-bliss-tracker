@@ -43,9 +43,9 @@ const TodayConsumption = ({ consumptions }: TodayConsumptionProps) => {
   const difference = todayTotal - yesterdayTotal;
 
   const typeIcons = {
-    herbe: { icon: Cannabis, color: 'text-green-500', bg: 'bg-green-100' },
-    hash: { icon: Cannabis, color: 'text-orange-500', bg: 'bg-orange-100' },
-    cigarette: { icon: Cigarette, color: 'text-gray-500', bg: 'bg-gray-100' },
+    herbe: { icon: Cannabis, color: 'text-white', bg: 'bg-green-700 border-green-600' },
+    hash: { icon: Cannabis, color: 'text-white', bg: 'bg-orange-700 border-orange-600' },
+    cigarette: { icon: Cigarette, color: 'text-white', bg: 'bg-slate-700 border-slate-600' },
   };
 
   const typeLabels = {
