@@ -53,6 +53,7 @@ const AddConsumptionForm: React.FC<AddConsumptionFormProps> = ({ onAdd, onCancel
     e.preventDefault();
     if (!quantity.trim()) return;
     
+    // Ajouter la consommation principale
     onAdd({
       type,
       quantity: quantity.trim(),
@@ -60,6 +61,27 @@ const AddConsumptionForm: React.FC<AddConsumptionFormProps> = ({ onAdd, onCancel
       note: note.trim() || undefined,
       price: price && price > 0 ? price : undefined,
     });
+
+    // Si c'est du cannabis/hash et que l'utilisateur fume avec des cigarettes
+    if ((type === 'herbe' || type === 'hash') && 
+        profile?.smokes_with_cannabis && 
+        profile?.cigarettes_per_joint > 0) {
+      
+      // Calculer le nombre de cigarettes à ajouter
+      const quantityNum = parseFloat(quantity.trim()) || 1;
+      const cigarettesToAdd = Math.ceil(quantityNum * profile.cigarettes_per_joint);
+      
+      // Ajouter automatiquement les cigarettes
+      setTimeout(() => {
+        onAdd({
+          type: 'cigarette',
+          quantity: cigarettesToAdd.toString(),
+          date,
+          note: `Auto-ajouté (${cigarettesToAdd} avec ${type})`,
+          price: (profile?.default_cigarette_price || 0.5) * cigarettesToAdd,
+        });
+      }, 100);
+    }
   };
 
   const typeOptions = [
