@@ -33,8 +33,6 @@ export const useProfileForm = () => {
     default_herbe_price: 10,
     default_hash_price: 15,
     default_cigarette_price: 0.5,
-    smokes_with_cannabis: false,
-    cigarettes_per_joint: 1,
   });
 
   // Synchroniser les données du profil avec le formulaire
@@ -67,8 +65,6 @@ export const useProfileForm = () => {
         default_herbe_price: profile.default_herbe_price || 10,
         default_hash_price: profile.default_hash_price || 15,
         default_cigarette_price: profile.default_cigarette_price || 0.5,
-        smokes_with_cannabis: profile.smokes_with_cannabis || false,
-        cigarettes_per_joint: profile.cigarettes_per_joint || 1,
       });
     }
   }, [profile]);
@@ -102,8 +98,6 @@ export const useProfileForm = () => {
         default_herbe_price: parseFloat(formData.default_herbe_price.toString()),
         default_hash_price: parseFloat(formData.default_hash_price.toString()),
         default_cigarette_price: parseFloat(formData.default_cigarette_price.toString()),
-        smokes_with_cannabis: formData.smokes_with_cannabis,
-        cigarettes_per_joint: formData.cigarettes_per_joint,
         profile_completed: true,
       };
 

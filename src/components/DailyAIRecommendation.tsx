@@ -91,11 +91,6 @@ const DailyAIRecommendation = () => {
         triggers_specific: profile?.triggers_specific || [],
         motivation_reasons: profile?.motivation_reasons || [],
         motivation_personal: profile?.motivation_personal,
-        alternative_activities: profile?.alternative_activities || [],
-        support_entourage: profile?.support_entourage,
-        support_preference: profile?.support_preference,
-        smokes_with_cannabis: profile?.smokes_with_cannabis || false,
-        cigarettes_per_joint: profile?.cigarettes_per_joint || 1,
         daily_mood: 'normale', // Could be enhanced with user input
         daily_difficulty: 'normale', // Could be enhanced with user input  
         daily_notes: 'aucune' // Could be enhanced with user input

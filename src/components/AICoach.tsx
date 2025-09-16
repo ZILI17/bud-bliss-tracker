@@ -101,10 +101,6 @@ const AICoach = () => {
 
       console.log('AI Coach Response:', data);
       
-      // Habitudes de consommation
-      smokes_with_cannabis: profile.smokes_with_cannabis || false,
-      cigarettes_per_joint: profile.cigarettes_per_joint || 1,
-      
       // Gérer les réponses avec ou sans erreur
       if (data?.advice) {
         setAdvice(data.advice);

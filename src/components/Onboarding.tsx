@@ -40,9 +40,7 @@ const Onboarding = () => {
     medications: [] as string[],
     default_herbe_quantity: '0.5',
     default_hash_quantity: '0.3',
-    default_cigarette_quantity: '1',
-    smokes_with_cannabis: false,
-    cigarettes_per_joint: 1
+    default_cigarette_quantity: '1'
   });
 
   const medicalConditions = [
@@ -94,8 +92,6 @@ const Onboarding = () => {
           default_herbe_quantity: parseFloat(profileData.default_herbe_quantity),
           default_hash_quantity: parseFloat(profileData.default_hash_quantity),
           default_cigarette_quantity: parseInt(profileData.default_cigarette_quantity),
-          smokes_with_cannabis: profileData.smokes_with_cannabis,
-          cigarettes_per_joint: profileData.cigarettes_per_joint,
           profile_completed: true,
           onboarding_completed: true,
           updated_at: new Date().toISOString()
@@ -257,78 +253,6 @@ const Onboarding = () => {
                 <p className="text-sm text-muted-foreground mb-4">
                   ⚖️ Définissez vos quantités moyennes pour des enregistrements rapides plus précis
                 </p>
-                
-                {/* Section habitudes de consommation */}
-                <div className="p-4 bg-gradient-to-br from-blue-500/10 to-purple-500/10 border border-blue-500/30 rounded-lg space-y-4">
-                  <h4 className="font-medium text-blue-300 flex items-center gap-2">
-                    <Cannabis className="w-4 h-4" />
-                    Habitudes de consommation
-                  </h4>
-                  
-                  <div className="space-y-3">
-                    <div>
-                      <label className="text-sm text-blue-200 block mb-2">
-                        Fumez-vous des cigarettes avec le cannabis/hash ?
-                      </label>
-                      <div className="flex gap-2 justify-center">
-                        <button
-                          type="button"
-                          onClick={() => setProfileData(prev => ({ ...prev, smokes_with_cannabis: true }))}
-                          className={`px-4 py-2 text-sm rounded-lg transition-all ${
-                            profileData.smokes_with_cannabis === true 
-                              ? 'bg-blue-600 text-white shadow-lg' 
-                              : 'bg-white/10 border border-blue-400 text-blue-300 hover:bg-white/20'
-                          }`}
-                        >
-                          Oui
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => setProfileData(prev => ({ ...prev, smokes_with_cannabis: false }))}
-                          className={`px-4 py-2 text-sm rounded-lg transition-all ${
-                            profileData.smokes_with_cannabis === false 
-                              ? 'bg-blue-600 text-white shadow-lg' 
-                              : 'bg-white/10 border border-blue-400 text-blue-300 hover:bg-white/20'
-                          }`}
-                        >
-                          Non
-                        </button>
-                      </div>
-                    </div>
-                    
-                    {profileData.smokes_with_cannabis && (
-                      <div>
-                        <label className="text-sm text-blue-200 block mb-2">
-                          Combien de cigarettes par joint en moyenne ?
-                        </label>
-                        <div className="flex gap-1 justify-center flex-wrap">
-                          {[0.5, 1, 1.5, 2, 2.5].map((value) => (
-                            <button
-                              key={value}
-                              type="button"
-                              onClick={() => setProfileData(prev => ({ 
-                                ...prev, 
-                                cigarettes_per_joint: value 
-                              }))}
-                              className={`px-3 py-1 text-sm rounded transition-all ${
-                                profileData.cigarettes_per_joint === value 
-                                  ? 'bg-blue-600 text-white shadow-lg' 
-                                  : 'bg-white/10 border border-blue-400 text-blue-300 hover:bg-white/20'
-                              }`}
-                            >
-                              {value}
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                  
-                  <p className="text-xs text-blue-400 text-center">
-                    💡 Cette information permet d'ajuster automatiquement votre suivi de cigarettes
-                  </p>
-                </div>
-                
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div>
                     <Label htmlFor="herbe_qty">Cannabis (grammes)</Label>

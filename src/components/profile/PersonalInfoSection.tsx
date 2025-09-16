@@ -114,25 +114,19 @@ const PersonalInfoSection = ({ formData, setFormData }: PersonalInfoSectionProps
                 <label className="text-sm text-blue-800">
                   Combien de cigarettes par joint en moyenne ?
                 </label>
-                <div className="flex gap-1">
-                  {[0.5, 1, 1.5, 2, 2.5].map((value) => (
-                    <button
-                      key={value}
-                      type="button"
-                      onClick={() => setFormData((prev: any) => ({ 
-                        ...prev, 
-                        cigarettes_per_joint: value 
-                      }))}
-                      className={`px-2 py-1 text-xs rounded ${
-                        formData.cigarettes_per_joint === value 
-                          ? 'bg-blue-600 text-white' 
-                          : 'bg-white border border-blue-300 text-blue-600'
-                      }`}
-                    >
-                      {value}
-                    </button>
-                  ))}
-                </div>
+                <Input
+                  type="number"
+                  min="0"
+                  max="5"
+                  step="0.5"
+                  placeholder="1"
+                  value={formData.cigarettes_per_joint || ''}
+                  onChange={(e) => setFormData((prev: any) => ({ 
+                    ...prev, 
+                    cigarettes_per_joint: parseFloat(e.target.value) || 1 
+                  }))}
+                  className="w-20 text-center"
+                />
               </div>
             )}
           </div>
