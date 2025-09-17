@@ -55,14 +55,14 @@ const InteractiveGoalTracker = () => {
     return isGood ? CheckCircle : AlertCircle;
   };
 
-  if (!profile?.consumption_goal || !weeklyGoal) {
+  if (!profile?.consumption_goal || profile.consumption_goal === '' || !weeklyGoal) {
     return (
       <Card className="glass-card border-dashed border-2 border-primary/30">
         <CardContent className="p-6 text-center">
           <Target className="w-12 h-12 mx-auto mb-4 text-muted-foreground opacity-50" />
           <h3 className="text-lg font-semibold mb-2">Définissez votre objectif</h3>
           <p className="text-muted-foreground text-sm">
-            Configurez votre objectif dans les paramètres pour activer le suivi interactif.
+            Allez dans Paramètres → Objectifs de consommation pour activer le suivi.
           </p>
         </CardContent>
       </Card>

@@ -128,6 +128,47 @@ export const useSupabaseConsumption = () => {
       };
 
       setConsumptions(prev => [newConsumption, ...prev]);
+
+      // Si c'est du cannabis/hash et que l'utilisateur fume avec des cigarettes
+      if ((consumption.type === 'herbe' || consumption.type === 'hash') && 
+          profile?.smokes_with_cannabis && 
+          profile?.cigarettes_per_joint) {
+        
+        const cigarettesToAdd = [];
+        const cigarettesPerJoint = Number(profile.cigarettes_per_joint);
+        
+        for (let i = 0; i < cigarettesPerJoint; i++) {
+          const cigaretteDate = new Date(consumption.date);
+          cigaretteDate.setMinutes(cigaretteDate.getMinutes() + (i * 2));
+          
+          cigarettesToAdd.push({
+            user_id: user.id,
+            type: 'cigarette',
+            quantity: '1',
+            date: cigaretteDate.toISOString(),
+            price: profile.default_cigarette_price || 0.5,
+            note: `Avec ${consumption.type}`
+          });
+        }
+
+        // Ajouter les cigarettes automatiquement
+        const { data: cigaretteData } = await supabase
+          .from('consumptions')
+          .insert(cigarettesToAdd)
+          .select();
+
+        if (cigaretteData) {
+          const newCigarettes = cigaretteData.map(item => ({
+            id: item.id,
+            type: item.type as 'herbe' | 'hash' | 'cigarette',
+            quantity: item.quantity,
+            date: item.date,
+            note: item.note || undefined,
+            price: item.price || undefined,
+          }));
+          setConsumptions(prev => [...newCigarettes, ...prev]);
+        }
+      }
     } catch (error) {
       console.error('Error adding consumption:', error);
     }
