@@ -79,8 +79,10 @@ const QuickActionButtons = ({ onQuickAdd, onShowForm }: QuickActionButtonsProps)
         <p className="text-xs sm:text-sm text-muted-foreground mt-4 sm:mt-6 opacity-75">
           ⚡ Quantités personnalisées - Modifiables dans les paramètres
           {profile?.smokes_with_cannabis && (
-            <br />
-            <span className="text-blue-300">🚬 Auto-ajout de cigarettes activé</span>
+            <>
+              <br />
+              <span className="text-blue-300">🚬 Auto-ajout de cigarettes activé</span>
+            </>
           )}
         </p>
       </div>

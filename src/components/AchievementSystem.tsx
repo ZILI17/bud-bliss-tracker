@@ -66,10 +66,10 @@ const AchievementSystem = () => {
       icon: Crown,
       condition: (data) => {
         // Logique simplifiée - à améliorer avec de vraies données temporelles
-        const weekTotal = Object.values(data.stats.weekTotal).reduce((a: number, b: number) => a + b, 0);
-        const monthTotal = Object.values(data.stats.monthTotal).reduce((a: number, b: number) => a + b, 0);
-        const weeklyAverage = monthTotal / 4;
-        return weekTotal < weeklyAverage * 0.5;
+        const weekTotal = Object.values(data.stats.weekTotal).reduce((a, b) => Number(a) + Number(b), 0);
+        const monthTotal = Object.values(data.stats.monthTotal).reduce((a, b) => Number(a) + Number(b), 0);
+        const weeklyAverage = Number(monthTotal) / 4;
+        return Number(weekTotal) < weeklyAverage * 0.5;
       },
       unlocked: false,
       rarity: 'epic',

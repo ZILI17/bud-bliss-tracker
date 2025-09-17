@@ -261,7 +261,7 @@ const Onboarding = () => {
                 {/* Section habitudes de consommation */}
                 <div className="p-4 bg-gradient-to-br from-blue-500/10 to-purple-500/10 border border-blue-500/30 rounded-lg space-y-4">
                   <h4 className="font-medium text-blue-300 flex items-center gap-2">
-                    <Cannabis className="w-4 h-4" />
+                    <div className="w-4 h-4 bg-green-500 rounded-full"></div>
                     Habitudes de consommation
                   </h4>
                   

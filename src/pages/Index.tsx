@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Plus, BarChart3, History, Cannabis, Cigarette, Sparkles, Zap, Shield, LogOut, Settings as SettingsIcon } from 'lucide-react';
+import { Plus, BarChart3, History, Cannabis, Cigarette, Sparkles, Zap, Shield, LogOut, Settings as SettingsIcon, Trophy } from 'lucide-react';
 import { useSupabaseConsumption } from '@/hooks/useSupabaseConsumption';
 import { useAuth } from '@/hooks/useAuth';
 import { useProfile } from '@/hooks/useProfile';
@@ -18,8 +18,6 @@ import AchievementSystem from '@/components/AchievementSystem';
 import InteractiveGoalTracker from '@/components/InteractiveGoalTracker';
 import QuickActionButtons from '@/components/QuickActionButtons';
 import { useToast } from '@/hooks/use-toast';
-import AddHistoricalDataButton from '@/components/AddHistoricalDataButton';
-import AddTwoWeeksDataButton from '@/components/AddTwoWeeksDataButton';
 import DeleteAllDataButton from '@/components/DeleteAllDataButton';
 
 const Index = () => {
@@ -134,8 +132,6 @@ const Index = () => {
         {/* Header with logout and settings */}
         <div className="text-center py-8 md:py-12 relative">
           <div className="absolute top-0 right-0 flex flex-col gap-1 w-20 sm:w-auto sm:flex-row sm:gap-2">
-            <AddHistoricalDataButton />
-            <AddTwoWeeksDataButton />
             <DeleteAllDataButton />
             <Button
               onClick={() => navigate('/settings')}
@@ -223,15 +219,13 @@ const Index = () => {
             
             {/* Suivi d'objectif interactif */}
             <InteractiveGoalTracker />
-            
-            {/* Recommandation IA du jour */}
-            <DailyAIRecommendation />
 
             {!showForm ? (
-              <QuickActionButtons 
-                onQuickAdd={handleQuickAdd}
-                onShowForm={() => setShowForm(true)}
-              />
+              <div>
+                <QuickActionButtons 
+                  onQuickAdd={handleQuickAdd}
+                  onShowForm={() => setShowForm(true)}
+                />
 
                 {/* Analytics intégrées */}
                 {consumptions.length > 0 && (
@@ -252,7 +246,11 @@ const Index = () => {
           </TabsContent>
 
           <TabsContent value="coach">
-            <AICoach />
+            <div className="space-y-6 md:space-y-8">
+              {/* Recommandation IA du jour */}
+              <DailyAIRecommendation />
+              <AICoach />
+            </div>
           </TabsContent>
 
           <TabsContent value="achievements">
