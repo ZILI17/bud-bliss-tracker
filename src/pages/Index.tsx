@@ -62,31 +62,7 @@ const Index = () => {
       description: `${quantity} enregistré dans votre suivi.`,
     });
 
-    // Si c'est du cannabis/hash et que l'utilisateur fume avec des cigarettes
-    if ((type === 'herbe' || type === 'hash') && 
-        profile?.smokes_with_cannabis && 
-        profile?.cigarettes_per_joint > 0) {
-      
-      // Calculer le nombre de cigarettes à ajouter
-      const quantityNum = parseFloat(quantity) || 1;
-      const cigarettesToAdd = Math.ceil(quantityNum * profile.cigarettes_per_joint);
-      
-      // Ajouter automatiquement les cigarettes après un court délai
-      setTimeout(() => {
-        addConsumption({
-          type: 'cigarette',
-          quantity: cigarettesToAdd.toString(),
-          date,
-          note: `Auto-ajouté (${cigarettesToAdd} avec ${type})`,
-          price: (profile?.default_cigarette_price || 0.5) * cigarettesToAdd,
-        });
-        
-        toast({
-          title: `🚬 Cigarettes ajoutées`,
-          description: `${cigarettesToAdd} cigarettes auto-ajoutées avec votre ${typeLabels[type]}.`,
-        });
-      }, 1000);
-    }
+    // La logique d'ajout automatique des cigarettes est maintenant dans useSupabaseConsumption
   };
 
   const handleDeleteConsumption = (id: string) => {

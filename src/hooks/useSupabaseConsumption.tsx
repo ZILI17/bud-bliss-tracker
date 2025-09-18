@@ -222,10 +222,10 @@ export const useSupabaseConsumption = () => {
     }
   };
 
-  // Fonction pour extraire la quantité réelle de cigarettes
+  // Fonction pour extraire la quantité réelle de cigarettes (avec support des décimales)
   const extractCigaretteCount = (quantity: string): number => {
-    const match = quantity.match(/(\d+)/);
-    return match ? parseInt(match[1]) : 1;
+    const match = quantity.match(/(\d+\.?\d*)/);
+    return match ? parseFloat(match[1]) : 1;
   };
 
   const getStats = (): ConsumptionStats => {
