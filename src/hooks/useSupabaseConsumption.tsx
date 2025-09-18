@@ -137,19 +137,18 @@ export const useSupabaseConsumption = () => {
         const cigarettesToAdd = [];
         const cigarettesPerJoint = Number(profile.cigarettes_per_joint);
         
-        for (let i = 0; i < cigarettesPerJoint; i++) {
-          const cigaretteDate = new Date(consumption.date);
-          cigaretteDate.setMinutes(cigaretteDate.getMinutes() + (i * 2));
-          
-          cigarettesToAdd.push({
-            user_id: user.id,
-            type: 'cigarette',
-            quantity: '1',
-            date: cigaretteDate.toISOString(),
-            price: profile.default_cigarette_price || 0.5,
-            note: `Avec ${consumption.type}`
-          });
-        }
+        // Ajouter la quantité exacte de cigarettes (peut être décimale)
+        const cigaretteDate = new Date(consumption.date);
+        cigaretteDate.setMinutes(cigaretteDate.getMinutes() + 1); // Légèrement après la consommation
+        
+        cigarettesToAdd.push({
+          user_id: user.id,
+          type: 'cigarette',
+          quantity: cigarettesPerJoint.toString(),
+          date: cigaretteDate.toISOString(),
+          price: (profile.default_cigarette_price || 0.5) * cigarettesPerJoint,
+          note: `Avec ${consumption.type} (${cigarettesPerJoint} cigarettes)`
+        });
 
         // Ajouter les cigarettes automatiquement
         const { data: cigaretteData } = await supabase

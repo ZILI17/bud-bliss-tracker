@@ -39,21 +39,18 @@ export const migratePastConsumptions = async (
     const cigarettesPerJoint = Number(profile.cigarettes_per_joint);
 
     for (const consumption of consumptions) {
-      // Pour chaque joint, ajouter le nombre de cigarettes correspondant
-      for (let i = 0; i < cigarettesPerJoint; i++) {
-        const cigaretteDate = new Date(consumption.date);
-        // Ajouter quelques minutes entre chaque cigarette pour plus de réalisme
-        cigaretteDate.setMinutes(cigaretteDate.getMinutes() + (i * 2));
+      // Pour chaque joint, ajouter la quantité exacte de cigarettes (peut être décimale)
+      const cigaretteDate = new Date(consumption.date);
+      cigaretteDate.setMinutes(cigaretteDate.getMinutes() + 1); // Légèrement après la consommation
 
-        cigarettesToAdd.push({
-          user_id: userId,
-          type: 'cigarette',
-          quantity: '1',
-          date: cigaretteDate.toISOString(),
-          price: profile.default_cigarette_price || 0.5,
-          note: `Ajoutée automatiquement (avec ${consumption.type})`
-        });
-      }
+      cigarettesToAdd.push({
+        user_id: userId,
+        type: 'cigarette',
+        quantity: cigarettesPerJoint.toString(),
+        date: cigaretteDate.toISOString(),
+        price: (profile.default_cigarette_price || 0.5) * cigarettesPerJoint,
+        note: `Migration automatique (avec ${consumption.type} - ${cigarettesPerJoint} cigarettes)`
+      });
     }
 
     if (cigarettesToAdd.length === 0) {
