@@ -10,9 +10,8 @@ import AddConsumptionForm from '@/components/AddConsumptionForm';
 import ConsumptionHistory from '@/components/ConsumptionHistory';
 import Stats from '@/components/Stats';
 import ImprovedStats from '@/components/ImprovedStats';
-import DailyAIRecommendation from '@/components/DailyAIRecommendation';
+import AIAnalysis from '@/components/AIAnalysis';
 import TodayConsumption from '@/components/TodayConsumption';
-import AICoach from '@/components/AICoach';
 import StreakDisplay from '@/components/StreakDisplay';
 import AchievementSystem from '@/components/AchievementSystem';
 import InteractiveGoalTracker from '@/components/InteractiveGoalTracker';
@@ -223,9 +222,7 @@ const Index = () => {
 
           <TabsContent value="coach">
             <div className="space-y-6 md:space-y-8">
-              {/* Recommandation IA du jour */}
-              <DailyAIRecommendation />
-              <AICoach />
+              <AIAnalysis />
             </div>
           </TabsContent>
 
