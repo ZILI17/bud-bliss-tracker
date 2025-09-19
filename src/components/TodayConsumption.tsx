@@ -19,14 +19,36 @@ const TodayConsumption = ({ consumptions }: TodayConsumptionProps) => {
     return consumptionDate === todayString;
   });
 
-  // Calculer les totaux d'aujourd'hui
+  // Fonction pour extraire la quantité réelle de cigarettes
+  const extractCigaretteCount = (quantity: string): number => {
+    const match = quantity.match(/(\d+\.?\d*)/);
+    return match ? parseFloat(match[1]) : 1;
+  };
+
+  // Fonction pour extraire le poids
+  const extractWeight = (quantity: string, type: 'herbe' | 'hash' | 'cigarette'): number => {
+    if (type === 'cigarette') return 0;
+    const match = quantity.match(/(\d+\.?\d*)/);
+    return match ? parseFloat(match[1]) : 0;
+  };
+
+  // Calculer les totaux d'aujourd'hui avec quantités précises
   const todayStats = todayConsumptions.reduce((acc, consumption) => {
-    acc[consumption.type] = (acc[consumption.type] || 0) + 1;
+    if (consumption.type === 'cigarette') {
+      acc[consumption.type] = (acc[consumption.type] || 0) + extractCigaretteCount(consumption.quantity);
+    } else {
+      acc[consumption.type] = (acc[consumption.type] || 0) + 1;
+    }
+    
+    // Calculer le poids total
+    const weight = extractWeight(consumption.quantity, consumption.type);
+    acc.totalWeight += weight;
+    
     if (consumption.price) {
       acc.totalCost += consumption.price;
     }
     return acc;
-  }, { herbe: 0, hash: 0, cigarette: 0, totalCost: 0 } as any);
+  }, { herbe: 0, hash: 0, cigarette: 0, totalCost: 0, totalWeight: 0 } as any);
 
   // Calculer les totaux d'hier pour comparaison
   const yesterday = new Date(today);
@@ -81,6 +103,11 @@ const TodayConsumption = ({ consumptions }: TodayConsumptionProps) => {
             <div className="text-sm text-muted-foreground">
               consommation{todayTotal > 1 ? 's' : ''} aujourd'hui
             </div>
+            {todayStats.totalWeight > 0 && (
+              <div className="text-xs text-muted-foreground">
+                {todayStats.totalWeight.toFixed(1)}g au total
+              </div>
+            )}
           </div>
           
           {yesterdayTotal > 0 && (
@@ -119,7 +146,7 @@ const TodayConsumption = ({ consumptions }: TodayConsumptionProps) => {
                   </span>
                 </div>
                 <div className="text-lg font-bold">
-                  {count as number}
+                  {type === 'cigarette' ? (count as number).toFixed(1) : count as number}
                 </div>
               </div>
             );
