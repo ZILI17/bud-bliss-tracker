@@ -173,24 +173,35 @@ export const useSupabaseConsumption = () => {
 
   // Fonction pour calculer le prix d'une consommation
   const calculatePrice = (consumption: Consumption): number => {
+    let totalPrice = 0;
+
+    // Prix principal de la consommation
     if (consumption.price && consumption.price > 0) {
-      return consumption.price;
+      totalPrice = consumption.price;
+    } else {
+      // Utiliser les prix par défaut du profil
+      const weight = extractWeight(consumption.quantity, consumption.type);
+      
+      switch (consumption.type) {
+        case 'herbe':
+          totalPrice = weight * (profile?.default_herbe_price || 10);
+          break;
+        case 'hash':
+          totalPrice = weight * (profile?.default_hash_price || 15);
+          break;
+        case 'cigarette':
+          const count = parseInt(consumption.quantity.match(/\d+/)?.[0] || '1');
+          totalPrice = count * (profile?.default_cigarette_price || 0.5);
+          break;
+      }
     }
 
-    // Utiliser les prix par défaut du profil
-    const weight = extractWeight(consumption.quantity, consumption.type);
-    
-    switch (consumption.type) {
-      case 'herbe':
-        return weight * (profile?.default_herbe_price || 10);
-      case 'hash':
-        return weight * (profile?.default_hash_price || 15);
-      case 'cigarette':
-        const count = parseInt(consumption.quantity.match(/\d+/)?.[0] || '1');
-        return count * (profile?.default_cigarette_price || 0.5);
-      default:
-        return 0;
+    // Ajouter le prix des cigarettes intégrées
+    if (consumption.cigs_added && consumption.cigs_added > 0) {
+      totalPrice += consumption.cigs_added * (profile?.default_cigarette_price || 0.5);
     }
+
+    return totalPrice;
   };
 
   // Fonction pour extraire la quantité réelle de cigarettes (avec support des décimales)
@@ -209,15 +220,13 @@ export const useSupabaseConsumption = () => {
     const monthData = consumptions.filter(c => new Date(c.date) >= monthAgo);
 
     // Calculate actual quantities (not just entry count)
+    // Les unités = nombre de consommations (joints, cigarettes standalone)
+    // Les cigarettes intégrées ne comptent PAS comme des unités séparées
     const weekTotal = weekData.reduce((acc, c) => {
       if (c.type === 'cigarette') {
         acc[c.type] = (acc[c.type] || 0) + extractCigaretteCount(c.quantity);
       } else {
         acc[c.type] = (acc[c.type] || 0) + 1;
-        // Ajouter les cigarettes intégrées au comptage cigarette
-        if (c.cigs_added) {
-          acc['cigarette'] = (acc['cigarette'] || 0) + c.cigs_added;
-        }
       }
       return acc;
     }, {} as { [key: string]: number });
@@ -227,10 +236,6 @@ export const useSupabaseConsumption = () => {
         acc[c.type] = (acc[c.type] || 0) + extractCigaretteCount(c.quantity);
       } else {
         acc[c.type] = (acc[c.type] || 0) + 1;
-        // Ajouter les cigarettes intégrées au comptage cigarette
-        if (c.cigs_added) {
-          acc['cigarette'] = (acc['cigarette'] || 0) + c.cigs_added;
-        }
       }
       return acc;
     }, {} as { [key: string]: number });
