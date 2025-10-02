@@ -5,7 +5,8 @@ export interface Consumption {
   quantity: string;
   date: string;
   note?: string;
-  price?: number; // Prix de cette consommation spécifique
+  price?: number;
+  cigs_added?: number; // Nombre de cigarettes intégrées au joint (support décimal)
 }
 
 export interface ConsumptionStats {

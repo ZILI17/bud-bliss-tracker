@@ -16,6 +16,7 @@ export type Database = {
     Tables: {
       consumptions: {
         Row: {
+          cigs_added: number | null
           created_at: string
           date: string
           id: string
@@ -27,6 +28,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          cigs_added?: number | null
           created_at?: string
           date: string
           id?: string
@@ -38,6 +40,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          cigs_added?: number | null
           created_at?: string
           date?: string
           id?: string

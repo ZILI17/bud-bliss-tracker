@@ -75,7 +75,14 @@ const ConsumptionHistory: React.FC<ConsumptionHistoryProps> = ({ consumptions, o
                 <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 mb-1">
                   <span className="font-medium text-sm">{getTypeLabel(consumption.type)}</span>
                   <span className="hidden sm:inline text-sm text-muted-foreground">•</span>
-                  <span className="text-sm font-medium text-muted-foreground sm:text-foreground">{consumption.quantity}</span>
+                  <span className="text-sm font-medium text-muted-foreground sm:text-foreground">
+                    {consumption.quantity}
+                    {consumption.cigs_added && consumption.cigs_added > 0 && (
+                      <span className="text-blue-600 ml-1">
+                        (+{consumption.cigs_added} cig)
+                      </span>
+                    )}
+                  </span>
                 </div>
                 <p className="text-xs text-muted-foreground mb-1">
                   {formatDate(consumption.date)}

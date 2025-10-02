@@ -67,7 +67,7 @@ export const useSupabaseConsumption = () => {
         .from('consumptions')
         .select('*')
         .eq('user_id', user.id)
-        .order('date', { ascending: false });
+        .order('created_at', { ascending: false });
 
       if (error) throw error;
 
@@ -78,6 +78,7 @@ export const useSupabaseConsumption = () => {
         date: item.date,
         note: item.note || undefined,
         price: item.price || undefined,
+        cigs_added: item.cigs_added || undefined,
       }));
 
       setConsumptions(formattedData);
@@ -103,6 +104,14 @@ export const useSupabaseConsumption = () => {
     if (!user) return;
 
     try {
+      // Calculer cigs_added pour cannabis/hash
+      let cigsAdded = 0;
+      if ((consumption.type === 'herbe' || consumption.type === 'hash') && 
+          profile?.smokes_with_cannabis && 
+          profile?.cigarettes_per_joint) {
+        cigsAdded = Number(profile.cigarettes_per_joint);
+      }
+
       const { data, error } = await supabase
         .from('consumptions')
         .insert({
@@ -112,6 +121,7 @@ export const useSupabaseConsumption = () => {
           date: consumption.date,
           note: consumption.note,
           price: consumption.price,
+          cigs_added: cigsAdded > 0 ? cigsAdded : null,
         })
         .select()
         .single();
@@ -125,49 +135,10 @@ export const useSupabaseConsumption = () => {
         date: data.date,
         note: data.note || undefined,
         price: data.price || undefined,
+        cigs_added: data.cigs_added || undefined,
       };
 
       setConsumptions(prev => [newConsumption, ...prev]);
-
-      // Si c'est du cannabis/hash et que l'utilisateur fume avec des cigarettes
-      if ((consumption.type === 'herbe' || consumption.type === 'hash') && 
-          profile?.smokes_with_cannabis && 
-          profile?.cigarettes_per_joint) {
-        
-        const cigarettesToAdd = [];
-        const cigarettesPerJoint = Number(profile.cigarettes_per_joint);
-        
-        // Ajouter la quantité exacte de cigarettes (peut être décimale)
-        const cigaretteDate = new Date(consumption.date);
-        cigaretteDate.setMinutes(cigaretteDate.getMinutes() + 1); // Légèrement après la consommation
-        
-        cigarettesToAdd.push({
-          user_id: user.id,
-          type: 'cigarette',
-          quantity: cigarettesPerJoint.toString(),
-          date: cigaretteDate.toISOString(),
-          price: (profile.default_cigarette_price || 0.5) * cigarettesPerJoint,
-          note: `Avec ${consumption.type} (${cigarettesPerJoint} cigarettes)`
-        });
-
-        // Ajouter les cigarettes automatiquement
-        const { data: cigaretteData } = await supabase
-          .from('consumptions')
-          .insert(cigarettesToAdd)
-          .select();
-
-        if (cigaretteData) {
-          const newCigarettes = cigaretteData.map(item => ({
-            id: item.id,
-            type: item.type as 'herbe' | 'hash' | 'cigarette',
-            quantity: item.quantity,
-            date: item.date,
-            note: item.note || undefined,
-            price: item.price || undefined,
-          }));
-          setConsumptions(prev => [...newCigarettes, ...prev]);
-        }
-      }
     } catch (error) {
       console.error('Error adding consumption:', error);
     }
@@ -243,6 +214,10 @@ export const useSupabaseConsumption = () => {
         acc[c.type] = (acc[c.type] || 0) + extractCigaretteCount(c.quantity);
       } else {
         acc[c.type] = (acc[c.type] || 0) + 1;
+        // Ajouter les cigarettes intégrées au comptage cigarette
+        if (c.cigs_added) {
+          acc['cigarette'] = (acc['cigarette'] || 0) + c.cigs_added;
+        }
       }
       return acc;
     }, {} as { [key: string]: number });
@@ -252,6 +227,10 @@ export const useSupabaseConsumption = () => {
         acc[c.type] = (acc[c.type] || 0) + extractCigaretteCount(c.quantity);
       } else {
         acc[c.type] = (acc[c.type] || 0) + 1;
+        // Ajouter les cigarettes intégrées au comptage cigarette
+        if (c.cigs_added) {
+          acc['cigarette'] = (acc['cigarette'] || 0) + c.cigs_added;
+        }
       }
       return acc;
     }, {} as { [key: string]: number });
@@ -320,16 +299,20 @@ export const useSupabaseConsumption = () => {
       const dayName = dayNames[date.getDay()];
       const dayMonth = date.getDate();
       
-      // Calculate accurate cigarette count for the day
-      const cigaretteCount = dayData
+      // Calculate accurate cigarette count for the day (standalone + integrated)
+      const standalonesCigs = dayData
         .filter(c => c.type === 'cigarette')
         .reduce((sum, c) => sum + extractCigaretteCount(c.quantity), 0);
+      
+      const integratedCigs = dayData
+        .filter(c => (c.type === 'herbe' || c.type === 'hash') && c.cigs_added)
+        .reduce((sum, c) => sum + (c.cigs_added || 0), 0);
       
       recentData.push({
         date: `${dayName} ${dayMonth}`,
         herbe: dayData.filter(c => c.type === 'herbe').length,
         hash: dayData.filter(c => c.type === 'hash').length,
-        cigarette: cigaretteCount,
+        cigarette: standalonesCigs + integratedCigs,
         herbeWeight: dayData.filter(c => c.type === 'herbe').reduce((sum, c) => sum + extractWeight(c.quantity, c.type), 0),
         hashWeight: dayData.filter(c => c.type === 'hash').reduce((sum, c) => sum + extractWeight(c.quantity, c.type), 0),
         herbeCost: dayData.filter(c => c.type === 'herbe').reduce((sum, c) => sum + calculatePrice(c), 0),

@@ -32,12 +32,29 @@ const TodayConsumption = ({ consumptions }: TodayConsumptionProps) => {
     return match ? parseFloat(match[1]) : 0;
   };
 
+  // Calculer le total de cigarettes incluant celles intégrées
+  const getTotalCigarettes = (items: typeof todayConsumptions) => {
+    const standalone = items
+      .filter(c => c.type === 'cigarette')
+      .reduce((sum, c) => sum + extractCigaretteCount(c.quantity), 0);
+    
+    const integrated = items
+      .filter(c => (c.type === 'herbe' || c.type === 'hash') && c.cigs_added)
+      .reduce((sum, c) => sum + (c.cigs_added || 0), 0);
+    
+    return standalone + integrated;
+  };
+
   // Calculer les totaux d'aujourd'hui avec quantités précises
   const todayStats = todayConsumptions.reduce((acc, consumption) => {
     if (consumption.type === 'cigarette') {
       acc[consumption.type] = (acc[consumption.type] || 0) + extractCigaretteCount(consumption.quantity);
     } else {
       acc[consumption.type] = (acc[consumption.type] || 0) + 1;
+      // Ajouter les cigarettes intégrées au comptage
+      if (consumption.cigs_added) {
+        acc.cigarette = (acc.cigarette || 0) + consumption.cigs_added;
+      }
     }
     
     // Calculer le poids total

@@ -15,6 +15,7 @@ interface AddConsumptionFormProps {
     date: string;
     note?: string;
     price?: number;
+    cigs_added?: number;
   }) => void;
   onCancel: () => void;
 }
@@ -29,6 +30,7 @@ const AddConsumptionForm: React.FC<AddConsumptionFormProps> = ({ onAdd, onCancel
   });
   const [note, setNote] = useState('');
   const [price, setPrice] = useState<number | undefined>();
+  const [cigsAdded, setCigsAdded] = useState<number>(0);
 
   // Obtenir le prix par défaut selon le type
   const getDefaultPrice = (selectedType: 'herbe' | 'hash' | 'cigarette') => {
@@ -44,23 +46,28 @@ const AddConsumptionForm: React.FC<AddConsumptionFormProps> = ({ onAdd, onCancel
     }
   };
 
-  // Mettre à jour le prix par défaut quand le type change
+  // Mettre à jour le prix et cigs_added par défaut quand le type change
   React.useEffect(() => {
     setPrice(getDefaultPrice(type));
+    
+    if ((type === 'herbe' || type === 'hash') && profile?.smokes_with_cannabis && profile?.cigarettes_per_joint) {
+      setCigsAdded(Number(profile.cigarettes_per_joint));
+    } else {
+      setCigsAdded(0);
+    }
   }, [type, profile]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!quantity.trim()) return;
     
-    // Ajouter uniquement la consommation principale
-    // La logique d'ajout automatique des cigarettes est maintenant dans useSupabaseConsumption
     onAdd({
       type,
       quantity: quantity.trim(),
       date,
       note: note.trim() || undefined,
       price: price && price > 0 ? price : undefined,
+      cigs_added: cigsAdded > 0 ? cigsAdded : undefined,
     });
   };
 
@@ -111,6 +118,28 @@ const AddConsumptionForm: React.FC<AddConsumptionFormProps> = ({ onAdd, onCancel
               required
             />
           </div>
+
+          {(type === 'herbe' || type === 'hash') && (
+            <div>
+              <Label htmlFor="cigs_added" className="text-sm font-medium flex items-center gap-2">
+                <Cigarette className="w-4 h-4" />
+                Cigarettes avec ce joint (optionnel)
+              </Label>
+              <Input
+                id="cigs_added"
+                type="number"
+                step="0.1"
+                min="0"
+                value={cigsAdded || ''}
+                onChange={(e) => setCigsAdded(parseFloat(e.target.value) || 0)}
+                placeholder="Ex: 1.5"
+                className="mt-1"
+              />
+              <p className="text-xs text-muted-foreground mt-1">
+                Support des décimales (ex: 1.5 cigarette)
+              </p>
+            </div>
+          )}
 
           <div>
             <Label htmlFor="price" className="text-sm font-medium flex items-center gap-2">
