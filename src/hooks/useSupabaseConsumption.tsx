@@ -212,12 +212,20 @@ export const useSupabaseConsumption = () => {
 
   const getStats = (): ConsumptionStats => {
     const now = new Date();
+    // Ajouter 1 jour pour inclure les entrées d'aujourd'hui et demain (timezone)
     const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
     const monthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+    const tomorrow = new Date(now.getTime() + 24 * 60 * 60 * 1000);
 
-    // Filter data by period
-    const weekData = consumptions.filter(c => new Date(c.date) >= weekAgo);
-    const monthData = consumptions.filter(c => new Date(c.date) >= monthAgo);
+    // Filter data by period - inclure jusqu'à demain pour gérer les timezones
+    const weekData = consumptions.filter(c => {
+      const consumptionDate = new Date(c.date);
+      return consumptionDate >= weekAgo && consumptionDate <= tomorrow;
+    });
+    const monthData = consumptions.filter(c => {
+      const consumptionDate = new Date(c.date);
+      return consumptionDate >= monthAgo && consumptionDate <= tomorrow;
+    });
 
     // Calculate actual quantities (not just entry count)
     // Les unités = nombre de consommations (joints, cigarettes standalone)
