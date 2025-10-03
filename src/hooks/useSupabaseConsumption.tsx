@@ -240,6 +240,25 @@ export const useSupabaseConsumption = () => {
       return acc;
     }, {} as { [key: string]: number });
 
+    // Calculer le total RÉEL de cigarettes (standalone + intégrées)
+    const weekCigarettesTotal = weekData.reduce((sum, c) => {
+      if (c.type === 'cigarette') {
+        return sum + extractCigaretteCount(c.quantity);
+      } else if ((c.type === 'herbe' || c.type === 'hash') && c.cigs_added) {
+        return sum + (c.cigs_added || 0);
+      }
+      return sum;
+    }, 0);
+
+    const monthCigarettesTotal = monthData.reduce((sum, c) => {
+      if (c.type === 'cigarette') {
+        return sum + extractCigaretteCount(c.quantity);
+      } else if ((c.type === 'herbe' || c.type === 'hash') && c.cigs_added) {
+        return sum + (c.cigs_added || 0);
+      }
+      return sum;
+    }, 0);
+
     // Calculate actual days with data for accurate averages
     const uniqueDaysWithData = new Set(
       monthData.map(c => c.date.split('T')[0])
@@ -251,6 +270,9 @@ export const useSupabaseConsumption = () => {
       acc[type] = Math.round((monthTotal[type] / daysToUseForAverage) * 100) / 100;
       return acc;
     }, {} as { [key: string]: number });
+
+    // Moyenne quotidienne de cigarettes réelles
+    const dailyCigarettesAverage = Math.round((monthCigarettesTotal / daysToUseForAverage) * 100) / 100;
 
     // Calculate weight totals for week and month
     const weekWeight = weekData.reduce((acc, c) => {
@@ -317,7 +339,8 @@ export const useSupabaseConsumption = () => {
         date: `${dayName} ${dayMonth}`,
         herbe: dayData.filter(c => c.type === 'herbe').length,
         hash: dayData.filter(c => c.type === 'hash').length,
-        cigarette: standalonesCigs + integratedCigs,
+        cigarette: standalonesCigs,
+        totalCigarettes: standalonesCigs + integratedCigs,
         herbeWeight: dayData.filter(c => c.type === 'herbe').reduce((sum, c) => sum + extractWeight(c.quantity, c.type), 0),
         hashWeight: dayData.filter(c => c.type === 'hash').reduce((sum, c) => sum + extractWeight(c.quantity, c.type), 0),
         herbeCost: dayData.filter(c => c.type === 'herbe').reduce((sum, c) => sum + calculatePrice(c), 0),
@@ -337,7 +360,10 @@ export const useSupabaseConsumption = () => {
       weekCost,
       monthCost,
       totalCost,
-      dailyCostAverage
+      dailyCostAverage,
+      weekCigarettesTotal,
+      monthCigarettesTotal,
+      dailyCigarettesAverage
     };
   };
 

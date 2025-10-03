@@ -18,6 +18,7 @@ export interface ConsumptionStats {
     herbe: number; 
     hash: number; 
     cigarette: number;
+    totalCigarettes: number; // Cigarettes standalone + intégrées
     herbeWeight: number;
     hashWeight: number;
     herbeCost: number;
@@ -31,4 +32,7 @@ export interface ConsumptionStats {
   monthCost: { [key: string]: number };
   totalCost: number;
   dailyCostAverage: { [key: string]: number };
+  weekCigarettesTotal: number; // Total réel de cigarettes (standalone + intégrées)
+  monthCigarettesTotal: number; // Total réel de cigarettes pour le mois
+  dailyCigarettesAverage: number; // Moyenne quotidienne de cigarettes
 }

@@ -42,19 +42,15 @@ const TodayConsumption = ({ consumptions }: TodayConsumptionProps) => {
       .filter(c => (c.type === 'herbe' || c.type === 'hash') && c.cigs_added)
       .reduce((sum, c) => sum + (c.cigs_added || 0), 0);
     
-    return standalone + integrated;
+    return { standalone, integrated, total: standalone + integrated };
   };
+
+  const cigaretteStats = getTotalCigarettes(todayConsumptions);
 
   // Calculer les totaux d'aujourd'hui avec quantités précises
   const todayStats = todayConsumptions.reduce((acc, consumption) => {
-    if (consumption.type === 'cigarette') {
-      acc[consumption.type] = (acc[consumption.type] || 0) + extractCigaretteCount(consumption.quantity);
-    } else {
+    if (consumption.type !== 'cigarette') {
       acc[consumption.type] = (acc[consumption.type] || 0) + 1;
-      // Ajouter les cigarettes intégrées au comptage
-      if (consumption.cigs_added) {
-        acc.cigarette = (acc.cigarette || 0) + consumption.cigs_added;
-      }
     }
     
     // Calculer le poids total
@@ -65,7 +61,7 @@ const TodayConsumption = ({ consumptions }: TodayConsumptionProps) => {
       acc.totalCost += consumption.price;
     }
     return acc;
-  }, { herbe: 0, hash: 0, cigarette: 0, totalCost: 0, totalWeight: 0 } as any);
+  }, { herbe: 0, hash: 0, totalCost: 0, totalWeight: 0 } as any);
 
   // Calculer les totaux d'hier pour comparaison
   const yesterday = new Date(today);
@@ -148,11 +144,24 @@ const TodayConsumption = ({ consumptions }: TodayConsumptionProps) => {
 
         {/* Détail par type */}
         <div className="grid grid-cols-3 gap-3">
-          {Object.entries(todayStats).map(([type, count]) => {
-            if (type === 'totalCost') return null;
-            const config = typeIcons[type as keyof typeof typeIcons];
-            if (!config) return null;
+          {Object.entries(typeIcons).map(([type, config]) => {
             const Icon = config.icon;
+            let count: number;
+            let displayText: string;
+            
+            if (type === 'cigarette') {
+              count = cigaretteStats.total;
+              if (count === 0) return null;
+              if (cigaretteStats.integrated > 0) {
+                displayText = `${cigaretteStats.total.toFixed(1)} (dont ${cigaretteStats.integrated.toFixed(1)} intégrées)`;
+              } else {
+                displayText = `${cigaretteStats.total.toFixed(1)}`;
+              }
+            } else {
+              count = todayStats[type as keyof typeof todayStats] as number;
+              if (count === 0) return null;
+              displayText = `${count}`;
+            }
             
             return (
               <div key={type} className={`p-3 rounded-lg ${config.bg} border`}>
@@ -163,7 +172,7 @@ const TodayConsumption = ({ consumptions }: TodayConsumptionProps) => {
                   </span>
                 </div>
                 <div className="text-lg font-bold">
-                  {type === 'cigarette' ? (count as number).toFixed(1) : count as number}
+                  {displayText}
                 </div>
               </div>
             );

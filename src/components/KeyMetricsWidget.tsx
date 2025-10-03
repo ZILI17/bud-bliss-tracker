@@ -13,14 +13,17 @@ const KeyMetricsWidget = ({ stats }: KeyMetricsWidgetProps) => {
   const weekTotalCount = Object.values(stats.weekTotal).reduce((a, b) => a + b, 0);
   const weekTotalWeight = Object.values(stats.weekWeight).reduce((a, b) => a + b, 0);
   const weekTotalCost = Object.values(stats.weekCost).reduce((a, b) => a + b, 0);
+  const weekCigarettesTotal = stats.weekCigarettesTotal || 0;
   
   const monthTotalCount = Object.values(stats.monthTotal).reduce((a, b) => a + b, 0);
   const monthTotalWeight = Object.values(stats.monthWeight).reduce((a, b) => a + b, 0);
   const monthTotalCost = Object.values(stats.monthCost).reduce((a, b) => a + b, 0);
+  const monthCigarettesTotal = stats.monthCigarettesTotal || 0;
   
   const dailyAvgCount = Object.values(stats.dailyAverage).reduce((a, b) => a + b, 0);
   const dailyAvgWeight = Object.values(stats.dailyWeightAverage).reduce((a, b) => a + b, 0);
   const dailyAvgCost = Object.values(stats.dailyCostAverage).reduce((a, b) => a + b, 0);
+  const dailyAvgCigarettes = stats.dailyCigarettesAverage || 0;
 
   // Projections
   const monthlyProjection = dailyAvgCost * 30;
@@ -36,6 +39,7 @@ const KeyMetricsWidget = ({ stats }: KeyMetricsWidgetProps) => {
       mainValue: `${weekTotalCount}`,
       mainUnit: 'unités',
       details: [
+        { label: 'Cigarettes', value: `${weekCigarettesTotal.toFixed(1)}` },
         { label: 'Poids', value: `${weekTotalWeight.toFixed(1)}g` },
         { label: 'Coût', value: `${weekTotalCost.toFixed(0)}€` },
       ]
@@ -49,6 +53,7 @@ const KeyMetricsWidget = ({ stats }: KeyMetricsWidgetProps) => {
       mainValue: `${dailyAvgCount.toFixed(1)}`,
       mainUnit: 'unités/jour',
       details: [
+        { label: 'Cigarettes', value: `${dailyAvgCigarettes.toFixed(1)}/j` },
         { label: 'Poids', value: `${dailyAvgWeight.toFixed(1)}g/j` },
         { label: 'Coût', value: `${dailyAvgCost.toFixed(1)}€/j` },
       ]

@@ -90,6 +90,7 @@ export const useConsumption = () => {
         herbe: dayData.filter(c => c.type === 'herbe').length,
         hash: dayData.filter(c => c.type === 'hash').length,
         cigarette: dayData.filter(c => c.type === 'cigarette').length,
+        totalCigarettes: dayData.filter(c => c.type === 'cigarette').length,
         herbeWeight: 0,
         hashWeight: 0,
         herbeCost: 0,
@@ -109,7 +110,10 @@ export const useConsumption = () => {
       weekCost,
       monthCost,
       totalCost,
-      dailyCostAverage
+      dailyCostAverage,
+      weekCigarettesTotal: 0,
+      monthCigarettesTotal: 0,
+      dailyCigarettesAverage: 0
     };
   };
 

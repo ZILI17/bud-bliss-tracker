@@ -20,7 +20,8 @@ const DailyEvolutionChart = ({ stats }: DailyEvolutionChartProps) => {
     // Quantités
     Cannabis: day.herbe,
     Hash: day.hash,
-    Cigarettes: day.cigarette,
+    'Cigarettes standalone': day.cigarette,
+    'Cigarettes totales': day.totalCigarettes,
     
     // Poids (grammes)
     'Cannabis (g)': Number(day.herbeWeight.toFixed(1)),
@@ -153,18 +154,18 @@ const DailyEvolutionChart = ({ stats }: DailyEvolutionChartProps) => {
                       />
                       <Line 
                         type="monotone" 
-                        dataKey="Cigarettes" 
+                        dataKey="Cigarettes totales" 
                         stroke="#6b7280" 
                         strokeWidth={2}
                         dot={{ fill: "#6b7280", strokeWidth: 2, r: 4 }}
-                        name="Cigarettes"
+                        name="Cigarettes totales"
                       />
                     </>
                   ) : (
                     <>
                       <Bar dataKey="Cannabis" fill="hsl(var(--primary))" name="Cannabis" />
                       <Bar dataKey="Hash" fill="#f59e0b" name="Hash" />
-                      <Bar dataKey="Cigarettes" fill="#6b7280" name="Cigarettes" />
+                      <Bar dataKey="Cigarettes totales" fill="#6b7280" name="Cigarettes totales" />
                     </>
                   )}
                 </ChartComponent>
